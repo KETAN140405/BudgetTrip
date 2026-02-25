@@ -1,0 +1,382 @@
+// /* ══════════════════════════════════════════════════════════════════════════════
+//    AI CARDS ENGINE — Generates place cards, detail modal, full travel database
+//    ══════════════════════════════════════════════════════════════════════════════ */
+
+// let aiPrefs = { duration: 'weekend', who: 'solo', styles: ['culture'] };
+// let currentPlace = '';
+
+// /* ── Preference toggles ─────────────────────────────────────────────────────── */
+// function runAI(el, bud) {
+//   aiBudget = bud;
+//   document.querySelectorAll('.ai-budget-btn').forEach(b => b.classList.remove('active'));
+//   el.classList.add('active');
+// }
+// function togglePref(el, key) {
+//   document.querySelectorAll(`.ai-pref-btn[data-key="${key}"]`).forEach(b => b.classList.remove('active'));
+//   el.classList.add('active');
+//   aiPrefs[key] = el.dataset.val;
+// }
+// function toggleMultiPref(el) {
+//   el.classList.toggle('active');
+//   const actives = [...document.querySelectorAll('.ai-pref-btn.multi.active')].map(b => b.dataset.val);
+//   aiPrefs.styles = actives.length ? actives : ['culture'];
+// }
+
+// /* ══════════════════════════════════════════════════════════════════════════════
+//    FULL TRAVEL DATABASE
+//    ══════════════════════════════════════════════════════════════════════════════ */
+// const TRAVEL_DB = {
+//   low: {
+//     beach:     { city:'Gokarna', state:'Karnataka', emoji:'🏖️', tag:'Beach · Budget', bg:'linear-gradient(135deg,#0f4c75,#1b6ca8,#00b4d8)', costs:{stay:'₹400–800',food:'₹150–250',transport:'₹100–200',activities:'₹200–500'}, best:'Oct–Mar', crowd:'Very Low', matchScore:98, matchReason:'Perfect offbeat beach on a shoestring. Less crowded than Goa, equally stunning.',
+//       tip:'Rent a bicycle (₹80/day) to reach secret Om Beach at sunrise — zero crowds before 7am.',
+//       highlights:['Om Beach','Kudle Beach','Mahabaleshwar Temple','Paradise Beach Trek'],
+//       itinerary:{ morning:'Kudle Beach yoga session with local instructors (₹200). Watch fishermen haul in fresh catch at dawn.', afternoon:'Trek the barefoot cliff trail to Half Moon Beach (45 min). Pack water. Entry free.', evening:'Om Beach cliff sunset with ₹50 chai from "Namaste Café". Stars like nowhere else in India.' }
+//     },
+//     adventure: { city:'Rishikesh', state:'Uttarakhand', emoji:'⛰️', tag:'Adventure · Budget', bg:'linear-gradient(135deg,#1a472a,#2d6a4f,#52b788)', costs:{stay:'₹350–700',food:'₹120–200',transport:'₹100–300',activities:'₹500–1200'}, best:'Mar–Jun, Sep–Nov', crowd:'Moderate', matchScore:96, matchReason:'World-class adventure at backpacker prices. Rafting, yoga, hiking — all budget-friendly.',
+//       tip:'Book white-water rafting directly with local operators on the ghat — same Grade 3-4 rapids, 40% cheaper than hotel packages.',
+//       highlights:['White-water Rafting','Laxman Jhula','Triveni Ghat Aarti','Neelkanth Mahadev Trek'],
+//       itinerary:{ morning:'Laxman Jhula bridge crossing at 6am — market stalls opening, light turns golden over the Ganges.', afternoon:'Grade 3–4 river rafting (₹600 direct rate). Finish at Ram Jhula. Hot maggi at riverside dhaba.', evening:'Ganga Aarti ceremony at Triveni Ghat — free, unforgettable, deeply moving at sunset.' }
+//     },
+//     culture:   { city:'Varanasi', state:'Uttar Pradesh', emoji:'🕌', tag:'Culture · Budget', bg:'linear-gradient(135deg,#8b4513,#c0632d,#e8853d)', costs:{stay:'₹300–600',food:'₹100–200',transport:'₹50–150',activities:'₹100–300'}, best:'Oct–Mar', crowd:'High Oct–Dec', matchScore:97, matchReason:'Most spiritually intense city on Earth. Ancient, raw, affordable, unforgettable.',
+//       tip:'Stay in the lanes of Assi Ghat (south end) — cheaper guesthouses, quieter, same Ganga access without Dashashwamedh tourist crush.',
+//       highlights:['Dashashwamedh Ghat Aarti','Manikarnika Cremation Ghat','Kashi Vishwanath Temple','Dawn Boat Ride'],
+//       itinerary:{ morning:'Shared boat ride at 5:30am (₹200) to watch morning aarti from the Ganges.', afternoon:'Walk all 84 ghats south to north (4 km). Stop at Manikarnika — respectful viewing, no photos.', evening:'Dashashwamedh Ganga Aarti at sunset. Arrive 30 min early for the best spot on the steps.' }
+//     },
+//     food:      { city:'Ahmedabad', state:'Gujarat', emoji:'🍛', tag:'Food · Budget', bg:'linear-gradient(135deg,#7b2d8b,#b5451b,#e8853d)', costs:{stay:'₹400–700',food:'₹100–200',transport:'₹50–100',activities:'₹150–300'}, best:'Oct–Mar', crowd:'Low', matchScore:94, matchReason:"India's food capital that no one talks about. Incredible street food, heritage, and zero tourist tax.",
+//       tip:'Manek Chowk transforms from jewellery market to food street at night — best street food in India, open until 2am, budget ₹200 for a full feast.',
+//       highlights:['Manek Chowk Night Market','Adalaj Stepwell','Law Garden','Sabarmati Ashram'],
+//       itinerary:{ morning:'Law Garden (actually runs morning too) — pav bhaji, handvo, fafda at ₹20–40/item.', afternoon:'Adalaj stepwell — stunning 15th-century architecture, free entry, almost no tourists weekdays.', evening:'Manek Chowk street food marathon: dhokla, pav bhaji, ice cream, jalebi. Feast for ₹150.' }
+//     },
+//     nature:    { city:'Hampi', state:'Karnataka', emoji:'🌿', tag:'Nature · Budget', bg:'linear-gradient(135deg,#5c3d11,#8b6914,#d4a017)', costs:{stay:'₹350–600',food:'₹120–220',transport:'₹80–200',activities:'₹100–300'}, best:'Oct–Feb', crowd:'Low', matchScore:95, matchReason:'UNESCO boulderscape. Ancient ruins inside a surreal landscape that looks like another planet.',
+//       tip:'Cross the river by coracle (₹30) to Virupapur Gadde — guesthouses half the price of Hampi main, boulder-field views.',
+//       highlights:['Vittala Temple & Stone Chariot','Hemakuta Hill Sunrise','Hampi Bazaar Ruins','Matanga Hill Sunset'],
+//       itinerary:{ morning:'Hemakuta Hill sunrise — free, uncrowded, 360° views over paddy fields and Virupaksha Temple.', afternoon:'Cycle rent (₹100/day) to Vittala Temple (₹600 entry). Musical pillars — tap gently and hear notes.', evening:'Matanga Hill sunset. Steep 20-min climb. Every shade of orange over the boulder landscape.' }
+//     },
+//     spiritual: { city:'Amritsar', state:'Punjab', emoji:'✨', tag:'Spiritual · Budget', bg:'linear-gradient(135deg,#1a0a00,#5c3d11,#c8960c)', costs:{stay:'₹400–800',food:'₹100–200',transport:'₹50–150',activities:'₹0–200'}, best:'Oct–Mar', crowd:'Moderate', matchScore:96, matchReason:'Golden Temple feeds 100,000 people free daily. The most welcoming spiritual site in India.',
+//       tip:'The Langar (community kitchen) at Golden Temple is free for everyone — eat with pilgrims, volunteers, and tourists alike. Most humbling meal of your life.',
+//       highlights:['Golden Temple','Wagah Border Ceremony','Jallianwala Bagh','Partition Museum'],
+//       itinerary:{ morning:'Golden Temple at 5am — fewer crowds, Palki Sahib ceremony bringing the Guru Granth Sahib. Deeply moving.', afternoon:'Jallianwala Bagh memorial (₹0). Partition Museum (₹200) — best museum in India.', evening:'Wagah Border ceremony (free). Arrive 1hr early for seating. Most patriotic 30 minutes in India.' }
+//     },
+//     nightlife: { city:'Pondicherry', state:'Tamil Nadu', emoji:'🌃', tag:'Nightlife · Budget', bg:'linear-gradient(135deg,#0d1b2a,#1b4965,#cae9ff)', costs:{stay:'₹500–900',food:'₹150–300',transport:'₹100–200',activities:'₹200–400'}, best:'Oct–Mar', crowd:'Low', matchScore:92, matchReason:'French colonial beach town. Affordable cafés, weekend parties, beautiful streets.',
+//       tip:'White Town evening walk is free — Rue Dumas and Rue Suffren look like a French film set at golden hour. Bars open 9pm, cheap cocktails ₹200–300.',
+//       highlights:['Promenade Beach','White Town Colonial Streets','Sri Aurobindo Ashram','Auroville'],
+//       itinerary:{ morning:'Sri Aurobindo Ashram (free, 8am-noon). Gardens, quiet, restorative.', afternoon:'White Town cycle tour (₹80/hr rental) — Rue Dumas, Rue Suffren, Goubert Avenue.', evening:'Promenade Beach sunset then Le Club or Storytellers — affordable cocktails (₹200–350), good crowd.' }
+//     }
+//   },
+//   medium: {
+//     beach:     { city:'North Goa', state:'Goa', emoji:'🏖️', tag:'Beach · Mid-Range', bg:'linear-gradient(135deg,#0077b6,#00b4d8,#48cae4)', costs:{stay:'₹2000–4000',food:'₹500–900',transport:'₹300–600',activities:'₹500–1500'}, best:'Nov–Feb', crowd:'High Nov–Jan', matchScore:97, matchReason:'Best beach-to-value ratio in India. Everything you want, priced for mid-range travelers.',
+//       tip:'Book Airbnb in Anjuna or Vagator — full apartment at price of a mid-range hotel room, kitchen halves food costs.',
+//       highlights:['Anjuna Flea Market','Baga Nightlife','Calangute Beach','Aguada Fort'],
+//       itinerary:{ morning:'Scooter rent (₹300/day), ride to Morjim Beach 7am — nesting turtles, calm sea, zero crowds.', afternoon:'Spice plantation tour in Ponda (₹600 incl. Goan lunch) — elephant interaction, exotic spices.', evening:"Anjuna's Curlies or Tito's Street in Baga — legendary nightlife. Entry ₹500–800 incl. drink." }
+//     },
+//     adventure: { city:'Manali', state:'Himachal Pradesh', emoji:'⛰️', tag:'Adventure · Mid-Range', bg:'linear-gradient(135deg,#1a3a4a,#2c7873,#52c234)', costs:{stay:'₹1800–3500',food:'₹400–700',transport:'₹500–1200',activities:'₹800–2500'}, best:'May–Jun, Sep–Oct', crowd:'High May–Jun', matchScore:95, matchReason:'Snow, adventure sports, Himalayan cafés — all accessible at mid-range prices.',
+//       tip:"Stay in Old Manali (2 km from main market) — better cafés, quieter, half the hotel rates, same mountain access.",
+//       highlights:['Solang Valley','Rohtang Pass','Hadimba Temple','Old Manali Cafés'],
+//       itinerary:{ morning:'Solang Valley at 8am before tourist buses. Paragliding (₹2500) or just the Himalayan panorama.', afternoon:'Drive to Rohtang Pass (₹450/person, permit needed). Snow even in June and September.', evening:"Old Manali café crawl — 'Drifters Inn', 'The Lazy Dog'. Mountain views, warm fire, momos (₹120)." }
+//     },
+//     culture:   { city:'Jaipur', state:'Rajasthan', emoji:'🏰', tag:'Heritage · Mid-Range', bg:'linear-gradient(135deg,#7b2d8b,#c0392b,#e67e22)', costs:{stay:'₹1500–3500',food:'₹400–800',transport:'₹300–700',activities:'₹600–1500'}, best:'Oct–Mar', crowd:'High Oct–Dec', matchScore:97, matchReason:'The Pink City delivers royal grandeur perfectly calibrated for mid-range budgets.',
+//       tip:'Buy the Composite Ticket (₹1000) covering Amber Fort, City Palace, Jantar Mantar, Hawa Mahal + 2 more. Saves ₹800 vs individual entries.',
+//       highlights:['Amber Fort','City Palace','Hawa Mahal','Jantar Mantar'],
+//       itinerary:{ morning:'Amber Fort at 8:30am sharp before tour buses. Elephant ride (₹900) or walk up. 2 hours minimum.', afternoon:'City Palace and Jantar Mantar — both on composite ticket. Astronomical instruments that still work.', evening:"Chokhi Dhani (₹800, ₹1200 with dinner) — authentic Rajasthani folk dances, camel rides, puppet show." }
+//     },
+//     food:      { city:'Mumbai', state:'Maharashtra', emoji:'🌆', tag:'Food · Mid-Range', bg:'linear-gradient(135deg,#2c3e50,#4a569d,#6a85b6)', costs:{stay:'₹2000–4500',food:'₹600–1200',transport:'₹200–500',activities:'₹500–1000'}, best:'Oct–Mar', crowd:'Always busy', matchScore:93, matchReason:"India's food capital. Every cuisine, every price point, every experience in one megacity.",
+//       tip:"Bandra has better food for less than South Mumbai — same quality chefs, 40% cheaper. Leopold Café is tourist trap; try 'Kyani & Co' (est. 1904) instead.",
+//       highlights:['Dharavi Street Food','Bandra Bandra Restaurant Mile','Crawford Market','Dabbawala Tour'],
+//       itinerary:{ morning:"Crawford Market at 8am — city's wholesale market since 1869, incredible produce, British-era architecture.", afternoon:'Dharavi Street Food Tour (₹800 guided) — ethical, eye-opening, the real Mumbai.', evening:"Bandra food walk: Global Fusion, Pali Village Café, Bastian. Budget ₹1500 for a proper food marathon." }
+//     },
+//     nature:    { city:'Coorg', state:'Karnataka', emoji:'🌿', tag:'Nature · Mid-Range', bg:'linear-gradient(135deg,#134e5e,#71b280,#52c234)', costs:{stay:'₹2500–5000',food:'₹400–800',transport:'₹400–800',activities:'₹600–1500'}, best:'Oct–Mar', crowd:'Low–Moderate', matchScore:94, matchReason:'Coffee estates, misty hills, waterfalls — Scotland of India at mid-range value.',
+//       tip:'Coffee-estate homestays include plantation tours in the stay price (₹3000–4000/night) — better than any paid guided tour.',
+//       highlights:['Abbey Falls','Dubare Elephant Camp','Namdroling Monastery','Coffee Estate Walks'],
+//       itinerary:{ morning:'Abbey Falls (free) at 7am before crowds. 4 km from Madikeri. Auto-rickshaw ₹150 return.', afternoon:'Dubare Elephant Camp (₹500) — bathe elephants in the Kaveri river. Book online in advance.', evening:"Madikeri Fort sunset view. Local Coorgi pork curry dinner at 'Hotel Capitol' (₹350)." }
+//     },
+//     spiritual: { city:'Mysore', state:'Karnataka', emoji:'🕉️', tag:'Spiritual · Mid-Range', bg:'linear-gradient(135deg,#1a0a00,#7b2d8b,#c0392b)', costs:{stay:'₹1800–3500',food:'₹400–700',transport:'₹300–600',activities:'₹400–900'}, best:'Oct–Mar, esp. Dasara', crowd:'High during Dasara', matchScore:93, matchReason:'Royal temples, palace illumination, Chamundi Hill — spiritual India with royal grandeur.',
+//       tip:'Chamundi Hill — climb up (1000 steps, 1hr, free, deeply spiritual), take the bus back (₹20). Descent views are the real reward.',
+//       highlights:['Mysore Palace','Chamundi Hill Temple','Devaraja Market','Brindavan Gardens'],
+//       itinerary:{ morning:'Mysore Palace at 9am (₹100 entry). See the Wadiyar throne room, stained glass, royal armory.', afternoon:'Chamundi Hill temple (₹50 entry) and 1000-step climb with pilgrims — authentic devotional India.', evening:'Palace illumination on weekends (7–7:45pm, free from outside). Dasaprakash for Mysore thali (₹250).' }
+//     },
+//     nightlife: { city:'Bangalore', state:'Karnataka', emoji:'🌃', tag:'Nightlife · Mid-Range', bg:'linear-gradient(135deg,#0d1b2a,#2d3561,#8e44ad)', costs:{stay:'₹2000–4500',food:'₹600–1200',transport:'₹300–500',activities:'₹500–2000'}, best:'Oct–Feb', crowd:'Moderate', matchScore:94, matchReason:"India's pub capital. World-class craft breweries, live music, global food — all mid-range.",
+//       tip:"Koramangala and Indiranagar have the best bar-to-quality ratio. Avoid MG Road (tourist markup). Brewpubs close 11:30pm — plan accordingly.",
+//       highlights:['Toit Craft Brewery','Indiranagar Bar Street','Humming Tree Live Music','Cubbon Park'],
+//       itinerary:{ morning:"Cubbon Park morning walk (free). Then filter coffee at 'Brahmin's Coffee Bar' (₹30, legendary queue).", afternoon:'Lalbagh Botanical Garden (₹20) — glasshouse, lake, 250-year-old trees. City escape.', evening:"Koramangala pub crawl: 'Toit' craft brewery (₹400/pint), 'The Humming Tree' (live music, ₹300 entry)." }
+//     }
+//   },
+//   luxury: {
+//     beach:     { city:'Kerala Backwaters', state:'Kerala', emoji:'🌴', tag:'Beach · Luxury', bg:'linear-gradient(135deg,#134e5e,#1a6b3a,#52b788)', costs:{stay:'₹12000–30000',food:'₹2000–4000',transport:'₹2000–5000',activities:'₹3000–8000'}, best:'Nov–Apr', crowd:'Low if booked right', matchScore:99, matchReason:'Private houseboat on silent backwaters with personal chef. India at its most serene and indulgent.',
+//       tip:'Fly into Kochi, spend 2 nights, then connect to Lakshadweep (₹8000 permit + flight) — India\'s own Maldives, legally restricted so genuinely uncrowded.',
+//       highlights:['Private Houseboat Stay','Ayurvedic Spa','Kathakali Performance','Tea Garden at Munnar'],
+//       itinerary:{ morning:'Private houseboat (₹15000–25000/night incl. meals) — AC cabin, personal chef, still dawn water.', afternoon:'Ayurvedic abhyanga massage at Kairali or Somatheeram resort (₹4000–6000, 90 min). Life-changing.', evening:'Kerala Kalamandalam Kathakali show (₹1500). Watch artists apply 3-hour traditional makeup before performance.' }
+//     },
+//     adventure: { city:'Leh-Ladakh', state:'J&K/Ladakh', emoji:'🏔️', tag:'Adventure · Luxury', bg:'linear-gradient(135deg,#1a1a2e,#16213e,#4a90d9)', costs:{stay:'₹5000–12000',food:'₹1000–2000',transport:'₹3000–8000',activities:'₹3000–10000'}, best:'Jun–Sep', crowd:'Jul–Aug busy', matchScore:98, matchReason:'The most dramatic landscape in India. High altitude desert, ancient monasteries, snow leopard country.',
+//       tip:'Hire a private jeep with local driver (₹6000–8000/day) — access restricted roads, stop anywhere, no group schedule. Worth every rupee.',
+//       highlights:['Pangong Lake','Nubra Valley Camel Safari','Thiksey Monastery','Magnetic Hill'],
+//       itinerary:{ morning:'Pangong Lake at dawn (4am departure from Leh) — lake turns pink, mountains purple, zero other tourists.', afternoon:'Nubra Valley double-humped Bactrian camel safari (₹600/30min) — sand dunes in the Himalayas.', evening:"Leh Palace rooftop dinner at 'The Grand Dragon' — valley views, star-canopy sky, authentic Ladakhi thali." }
+//     },
+//     culture:   { city:'Udaipur', state:'Rajasthan', emoji:'🏯', tag:'Heritage · Luxury', bg:'linear-gradient(135deg,#2c0e37,#7b2d8b,#e040fb)', costs:{stay:'₹8000–25000',food:'₹1500–3500',transport:'₹1000–3000',activities:'₹2000–8000'}, best:'Oct–Mar', crowd:'Moderate', matchScore:99, matchReason:"The most romantic city in India. Lakes, palaces, rooftop dining — India's crown jewel.",
+//       tip:'Taj Lake Palace hotel offers "royal high tea" (₹3500/couple) for non-guests — same world-class experience as the ₹40,000/night room without the room rate.',
+//       highlights:['City Palace','Lake Pichola Boat Ride','Sajjangarh Monsoon Palace','Jag Mandir Island'],
+//       itinerary:{ morning:'Sunrise boat ride to Jag Mandir island (₹700). Breakfast on the island with lake views.', afternoon:"City Palace (₹500 entry) — 11 interconnected palaces over 400 years. Private guide (₹2000) transforms it.", evening:"Sunset cruise on Lake Pichola (₹1500) then dinner at 'Ambrai Restaurant' — fairy lights, lake reflection." }
+//     },
+//     food:      { city:'Delhi', state:'Delhi', emoji:'🍽️', tag:'Food · Luxury', bg:'linear-gradient(135deg,#1a0a00,#8b1a1a,#c0392b)', costs:{stay:'₹6000–18000',food:'₹2000–5000',transport:'₹1000–2500',activities:'₹1500–4000'}, best:'Oct–Mar', crowd:'Moderate', matchScore:97, matchReason:"India's capital delivers world-class fine dining alongside the planet's best street food — simultaneously.",
+//       tip:'"Indian Accent" and "Bukhara" require 2-week advance booking. Indian Accent lunch tasting menu (₹4500) is the same kitchen as dinner (₹9000) — 50% saving.',
+//       highlights:['Indian Accent Fine Dining','Old Delhi Food Walk','Lodhi Art District','Bukhara Restaurant'],
+//       itinerary:{ morning:'Lodhi Art District morning walk (free) — outdoor street art + 15th-century Lodhi Garden ruins, side by side.', afternoon:"Old Delhi food walk with 'Salaam Baalak Trust' (₹1200) — ethical, incredible, supports at-risk youth.", evening:'Indian Accent dinner tasting menu (₹9000–12000/person) — India\'s #1 restaurant. Reserve 2 weeks ahead.' }
+//     },
+//     nature:    { city:'Ranthambore', state:'Rajasthan', emoji:'🐯', tag:'Wildlife · Luxury', bg:'linear-gradient(135deg,#1a2a1a,#2d5a1b,#4a8c2a)', costs:{stay:'₹8000–22000',food:'₹1500–3000',transport:'₹2000–5000',activities:'₹3000–8000'}, best:'Oct–Jun', crowd:'Low Oct–Dec', matchScore:98, matchReason:"India's best tiger reserve. 40-60% tiger sighting probability on morning safaris in Zone 3.",
+//       tip:'Zone 1–5 have the highest tiger sightings. Book Canter (₹800) over Jeep (₹3000) for Zone 3 — more seats but tiger sightings nearly identical, and 75% cheaper.',
+//       highlights:['Tiger Safari Zone 3','Ranthambore Fort','Padam Talab','Jungle Camp Sundowners'],
+//       itinerary:{ morning:'Zone 3 Canter safari at 6am — tiger sighting probability 40–60%. Binoculars essential. Pack snacks.', afternoon:'Ranthambore Fort (free, inside park) — 10th-century fort with tigers occasionally walking below walls.', evening:"Sundowner at SUJÁN Sher Bagh or Aman-i-Khás — Rajasthani folk music, campfire, open-sky dinner." }
+//     },
+//     spiritual: { city:'Rishikesh + Haridwar', state:'Uttarakhand', emoji:'🕉️', tag:'Spiritual · Luxury', bg:'linear-gradient(135deg,#0a0a2e,#1a237e,#4a90d9)', costs:{stay:'₹4000–10000',food:'₹800–1800',transport:'₹1000–2500',activities:'₹1500–4000'}, best:'Mar–Jun, Sep–Oct', crowd:'High Mar–Apr', matchScore:97, matchReason:'Where luxury meets the sacred. World-class Ayurvedic resorts beside the holiest river in India.',
+//       tip:"Ananda in the Himalayas resort day-spa packages (₹6000) are open to non-guests — world-class Ayurveda without the ₹20,000/night room rate.",
+//       highlights:['Ananda Spa','Haridwar Har Ki Pauri Aarti','White-water Rafting Grade 4','Private Yoga Sessions'],
+//       itinerary:{ morning:'Private sunrise yoga + pranayama with certified Iyengar instructor on your resort deck. Tea in silence.', afternoon:"White-water rafting Grade 4–5 (₹2500, private guide). Then Ananda Spa afternoon treatment (₹6000).", evening:"Haridwar Har Ki Pauri Ganga Aarti — largest in India, 50,000 diyas afloat. Overwhelming and beautiful." }
+//     },
+//     nightlife: { city:'South Goa', state:'Goa', emoji:'🥂', tag:'Nightlife · Luxury', bg:'linear-gradient(135deg,#0d1b2a,#1b4965,#e040fb)', costs:{stay:'₹8000–25000',food:'₹2000–4500',transport:'₹1000–3000',activities:'₹2000–6000'}, best:'Nov–Feb', crowd:'High Dec–Jan', matchScore:95, matchReason:'Quieter, cleaner beaches than North Goa with boutique luxury resorts and world-class seafood restaurants.',
+//       tip:'South Goa luxury resorts (Palolem, Agonda) cost 60% of equivalent North Goa 5-stars — same quality, quieter beach, cleaner water.',
+//       highlights:['Private Catamaran Dolphin Cruise','Dudhsagar Falls Jeep Safari','Cavelossim Beach','Fisherman\'s Wharf Seafood'],
+//       itinerary:{ morning:'Private sunrise catamaran dolphin cruise (₹3500/couple) from Palolem. Dolphins guaranteed in season.', afternoon:'Dudhsagar Falls Jeep safari (₹2500) — 4-hour jungle drive to 300m four-tiered waterfall. Stunning.', evening:"Fisherman's Wharf or Martin's Corner — Goa's finest seafood. Lobster ₹2000, cocktails ₹500, sea breeze." }
+//     }
+//   }
+// };
+
+// const MONEY_TIPS = {
+//   low: ["🚌 Use state government buses (KSRTC, MSRTC) over private — same routes, 40–60% cheaper, often more reliable.", "🍽️ Eat at railway canteens, truck-stop dhabas, Udupi hotels — identical quality to tourist restaurants at 20% of the price.", "🏨 Check in during off-peak hours (2–4pm) and negotiate cash payment — most guesthouses drop ₹100–200 no questions asked."],
+//   medium: ["🗓️ Book trains and hotels 6–8 weeks ahead — Tatkal fares add 30–50% and popular properties fill up fast.", "📦 Buy Composite Tickets at major sites — Jaipur (₹1000), Agra (₹1350) save ₹500–800 vs individual entries.", "🛵 Rent a scooter (₹300–500/day) instead of taxis — cuts transport costs 70% while giving total exploration freedom."],
+//   luxury: ["☀️ Shoulder season (Sep–Oct, Feb–Mar) at luxury properties: same world-class service, 30–40% lower rates, fewer crowds.", "🍴 All luxury hotels allow non-guests for dining — Indian Accent, Amarvilas, Leela all do lunch at 50% of dinner prices.", "✈️ Fly IndiGo/SpiceJet between cities instead of Vistara — same airports, 50% savings, use difference for premium experiences."]
+// };
+// const DONT_MISS = {
+//   solo:'🚂 Take a sleeper-class overnight train between two cities (₹400–800). You save a hotel night, and watching India wake up at dawn from an open berth is one of the most beautiful things you\'ll ever see.',
+//   couple:'🌅 Book a private "sundowner" experience — rooftop or boat at golden hour with a local drink. In Udaipur it\'s the lake, in Goa the cliffs, in Munnar the tea estates. Costs ₹500–2000. Memory lasts forever.',
+//   family:'🐘 One ethical elephant interaction — Dubare in Coorg, or Kerala\'s Guruvayur. Children remember this more than any monument. Book in advance, choose operators with welfare certifications.',
+//   friends:'🍻 One proper local night out — Koramangala Bangalore, Bandra Mumbai, or Hauz Khas Delhi. Go where locals go (not tourist venues), arrive after 10pm, let a local suggest the bar. Authentic India after dark.'
+// };
+
+// /* ══════════════════════════════════════════════════════════════════════════════
+//    GENERATE & RENDER PLACE CARDS
+//    ══════════════════════════════════════════════════════════════════════════════ */
+// async function triggerAI() {
+//   const btn     = document.getElementById('ai-run-btn');
+//   const btnIcon = document.getElementById('ai-btn-icon');
+//   const btnText = document.getElementById('ai-btn-text');
+
+//   btn.disabled = true;
+<!-- //   btnIcon.innerHTML = '<span class="spinner" style="display:inline-block;width:16px;height:16px;border-width:2px;vertical-align:middle"></span>'; -->
+//   btnText.textContent = 'Finding your places...';
+
+//   // Show skeletons, hide others
+//   document.getElementById('ai-empty-state').style.display    = 'none';
+//   document.getElementById('ai-cards-grid').style.display     = 'none';
+//   document.getElementById('ai-loading-state').style.display  = 'block';
+
+//   // Simulate AI thinking time
+//   await delay(1000 + Math.random() * 600);
+
+//   const picks = buildPicks();
+//   renderCards(picks);
+
+//   document.getElementById('ai-loading-state').style.display = 'none';
+//   document.getElementById('ai-cards-grid').style.display     = 'block';
+
+//   const bud = aiBudget || 'medium';
+//   document.getElementById('ai-results-label').textContent =
+//     `✨ ${picks.length} places matched for ${document.querySelector('.ai-budget-btn.active')?.querySelector('div:nth-child(2)')?.textContent || 'your'} budget`;
+
+//   btn.disabled = false;
+//   btnIcon.textContent = '✨';
+//   btnText.textContent = 'Generate AI Recommendations';
+
+//   // Scroll to results
+//   document.getElementById('ai-cards-grid').scrollIntoView({ behavior:'smooth', block:'nearest' });
+//   showToast(`✨ Found ${picks.length} perfect destinations for you!`, 'success');
+// }
+
+// function buildPicks() {
+//   const bud    = aiBudget || 'medium';
+//   const styles = aiPrefs.styles.length ? aiPrefs.styles : ['culture'];
+//   const db     = TRAVEL_DB[bud];
+//   const picks  = [];
+//   const seen   = new Set();
+
+//   for (const style of styles) {
+//     if (db[style] && !seen.has(db[style].city)) {
+//       picks.push({ key:style, ...db[style] });
+//       seen.add(db[style].city);
+//       if (picks.length >= 3) break;
+//     }
+//   }
+//   // Fill to 3 with fallbacks
+//   const fallbacks = ['culture','beach','adventure','food','nature','spiritual','nightlife'];
+//   for (const s of fallbacks) {
+//     if (picks.length >= 3) break;
+//     if (db[s] && !seen.has(db[s].city)) {
+//       picks.push({ key:s, ...db[s] });
+//       seen.add(db[s].city);
+//     }
+//   }
+//   return picks;
+// }
+
+// function renderCards(picks) {
+//   const container = document.getElementById('ai-cards-container');
+//   container.innerHTML = '';
+
+//   picks.forEach((place, i) => {
+//     const card = document.createElement('div');
+//     card.className = 'ai-place-card';
+//     card.style.cssText = `opacity:0;transform:translateY(20px);transition:opacity 0.4s ease ${i*0.12}s, transform 0.4s ease ${i*0.12}s`;
+//     card.innerHTML = `
+<!-- //       <div onclick="openPlaceModal('${place.city}')" style="cursor:pointer"> -->
+//         <!-- Card hero strip -->
+<!-- //         <div style="height:90px;background:${place.bg};border-radius:var(--radius-sm) var(--radius-sm) 0 0;position:relative;display:flex;align-items:center;padding:0 20px;gap:16px;overflow:hidden">
+//           <div style="position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:60px;opacity:0.18">${place.emoji}</div>
+//           <div style="font-size:36px;flex-shrink:0;position:relative;z-index:1">${place.emoji}</div>
+//           <div style="position:relative;z-index:1">
+//             <div style="font-size:18px;font-weight:800;color:#fff;font-family:'Clash Display',sans-serif;letter-spacing:-0.3px">${place.city}</div>
+//             <div style="font-size:11px;color:rgba(255,255,255,0.75);margin-top:2px">${place.state} · ${place.tag.split('·')[0].trim()}</div>
+//           </div>
+//           <div style="margin-left:auto;position:relative;z-index:1;text-align:right">
+//             <div style="background:rgba(16,217,138,0.2);border:1px solid rgba(16,217,138,0.4);padding:4px 10px;border-radius:99px;font-size:11px;font-weight:800;color:#10d98a">${place.matchScore}% match</div>
+//           </div>
+//         </div> -->
+//         <!-- Card body -->
+<!-- //         <div style="padding:16px 18px 18px">
+//           <p style="font-size:13px;color:var(--text2);line-height:1.65;margin-bottom:14px">${place.matchReason}</p>
+//           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+//             ${place.highlights.slice(0,3).map(h => `<span style="padding:3px 10px;border-radius:6px;background:var(--surface2);border:1px solid var(--border);font-size:11px;font-weight:600;color:var(--text2)">${h}</span>`).join('')}
+//           </div>
+//           <div style="display:flex;align-items:center;justify-content:space-between">
+//             <div>
+//               <div style="font-size:15px;font-weight:800;color:var(--accent)">${place.costs.stay}</div>
+//               <div style="font-size:10px;color:var(--text3);margin-top:1px">per night · stay</div>
+//             </div>
+//             <div style="display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;background:var(--surface2);border:1px solid var(--border);font-size:12px;font-weight:700;color:var(--text2);transition:var(--transition)" class="card-cta-btn">
+//               View Details <span style="font-size:14px">→</span>
+//             </div>
+//           </div>
+//         </div>
+//       </div>`; -->
+
+//     container.appendChild(card);
+//     // Trigger animation
+//     requestAnimationFrame(() => requestAnimationFrame(() => {
+//       card.style.opacity = '1';
+//       card.style.transform = 'translateY(0)';
+//     }));
+//   });
+
+//   // Store picks for modal lookup
+//   window._aiPicks = picks;
+// }
+
+// /* ══════════════════════════════════════════════════════════════════════════════
+//    PLACE DETAIL MODAL
+//    ══════════════════════════════════════════════════════════════════════════════ */
+// function openPlaceModal(cityName) {
+//   const picks = window._aiPicks || [];
+//   const place = picks.find(p => p.city === cityName) || findPlaceAnywhere(cityName);
+//   if (!place) return;
+
+//   currentPlace = cityName;
+
+//   // Populate modal
+//   document.getElementById('pm-hero').style.background = place.bg;
+//   document.getElementById('pm-hero-emoji').textContent  = place.emoji;
+//   document.getElementById('pm-hero-emoji2').textContent = place.emoji;
+//   document.getElementById('pm-hero-tag').textContent    = place.tag;
+//   document.getElementById('pm-city').textContent        = place.city;
+//   document.getElementById('pm-price').textContent       = place.costs.stay;
+//   document.getElementById('pm-why').textContent         = place.matchReason;
+//   document.getElementById('pm-best').textContent        = place.best;
+//   document.getElementById('pm-crowd').textContent       = place.crowd;
+//   document.getElementById('pm-tip').textContent         = place.tip;
+
+//   // Cost breakdown
+//   const costsEl = document.getElementById('pm-costs');
+//   const costItems = [
+//     { icon:'🏨', label:'Stay',       val:place.costs.stay },
+//     { icon:'🍽️', label:'Food',       val:place.costs.food },
+//     { icon:'🚗', label:'Transport',  val:place.costs.transport },
+//     { icon:'🎭', label:'Activities', val:place.costs.activities },
+//   ];
+//   costsEl.innerHTML = costItems.map(c => `
+//     <div style="padding:12px 14px;border-radius:var(--radius-sm);background:var(--surface);border:1px solid var(--border)">
+//       <div style="font-size:16px;margin-bottom:6px">${c.icon}</div>
+//       <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);margin-bottom:4px">${c.label}</div>
+//       <div style="font-size:13px;font-weight:700;color:var(--accent)">${c.val}</div>
+//     </div>`).join('');
+
+//   // Highlights chips
+//   const itinEl = document.getElementById('pm-itinerary');
+//   const slots = [
+//     { icon:'🌅', time:'Morning',   text:place.itinerary.morning },
+//     { icon:'☀️', time:'Afternoon', text:place.itinerary.afternoon },
+//     { icon:'🌙', time:'Evening',   text:place.itinerary.evening },
+//   ];
+//   itinEl.innerHTML = slots.map(s => `
+//     <div style="display:flex;gap:12px;padding:14px;border-radius:var(--radius-sm);background:var(--surface);border:1px solid var(--border)">
+//       <div style="font-size:20px;flex-shrink:0;margin-top:1px">${s.icon}</div>
+//       <div>
+//         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);margin-bottom:5px">${s.time}</div>
+//         <div style="font-size:13px;color:var(--text2);line-height:1.65">${s.text}</div>
+//       </div>
+//     </div>`).join('');
+
+//   // Show modal with animation
+//   const overlay = document.getElementById('place-modal');
+//   const box     = document.getElementById('place-modal-box');
+//   overlay.style.display = 'flex';
+//   document.body.style.overflow = 'hidden';
+//   requestAnimationFrame(() => requestAnimationFrame(() => {
+//     box.style.opacity   = '1';
+//     box.style.transform = 'scale(1) translateY(0)';
+//   }));
+// }
+
+// function closePlaceModal(e) {
+//   // Called either from X button (no args), Escape key (no args), or overlay click
+//   if (e && e.type === 'click' && e.target !== document.getElementById('place-modal')) return;
+//   const overlay = document.getElementById('place-modal');
+//   const box     = document.getElementById('place-modal-box');
+//   box.style.opacity   = '0';
+//   box.style.transform = 'scale(0.95) translateY(20px)';
+//   setTimeout(() => {
+//     overlay.style.display = 'none';
+//     document.body.style.overflow = '';
+//   }, 280);
+// }
+// // Close on Escape — merged with existing listener
+// document.addEventListener('keydown', e => {
+//   if (e.key === 'Escape') {
+//     closePlaceModal();
+//     closeModal();
+//   }
+// });
+
+// function findPlaceAnywhere(city) {
+//   for (const bud of Object.values(TRAVEL_DB))
+//     for (const place of Object.values(bud))
+//       if (place.city === city) return place;
+//   return null;
+// }
+
+// function copyPlaceInfo() {
+//   const city  = document.getElementById('pm-city').textContent;
+//   const why   = document.getElementById('pm-why').textContent;
+//   const best  = document.getElementById('pm-best').textContent;
+//   const tip   = document.getElementById('pm-tip').textContent;
+//   const text  = `${city}\n\nWhy visit: ${why}\nBest time: ${best}\nInsider tip: ${tip}\n\n— TravelMate AI`;
+//   navigator.clipboard.writeText(text)
+//     .then(() => showToast('📋 Place info copied!', 'success'))
+//     .catch(() => showToast('Could not copy', 'error'));
+// }
+
+// /* ── Utility ─────────────────────────────────────────────────────────────────── */
+// function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// function copyAIOutput() {
+//   const cards = document.getElementById('ai-cards-container');
+//   const text  = cards ? cards.innerText : '';
+//   navigator.clipboard.writeText(text)
+//     .then(() => showToast('📋 Copied to clipboard!', 'success'))
+//     .catch(() => showToast('Could not copy', 'error'));
+// }

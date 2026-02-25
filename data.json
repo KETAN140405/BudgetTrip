@@ -1,0 +1,26 @@
+[
+  {
+    "slug": "goa",
+    "name": "Goa",
+    "state": "Goa",
+    "type": "beach",
+    "avgCostPerDay": 3500,
+    "rating": 4.7,
+    "description": "Beautiful beaches and nightlife.",
+    "lat": 15.2993,
+    "lng": 74.1240,
+    "image": "https://images.unsplash.com/photo-1587922546307-776227941871"
+  },
+  {
+    "slug": "jaipur",
+    "name": "Jaipur",
+    "state": "Rajasthan",
+    "type": "heritage",
+    "avgCostPerDay": 2800,
+    "rating": 4.8,
+    "description": "The Pink City of India.",
+    "lat": 26.9124,
+    "lng": 75.7873,
+    "image": "https://images.unsplash.com/photo-1599661046289-e31897846e41"
+  }
+]
