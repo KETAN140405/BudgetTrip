@@ -4,12 +4,12 @@ const db = mysql.createConnection({
   host: "localhost",
   user: "root",
   password: "Vijay@002",
-  database: "travel_website"
+  database: "budgettrip"
 });
 
 db.connect(err => {
   if (err) {
-    console.log("Database connection failed");
+    console.log("DB Error:", err);
   } else {
     console.log("MySQL Connected");
   }

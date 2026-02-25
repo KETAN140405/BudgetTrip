@@ -1,5 +1,5 @@
 {
-  "name": "aaa",
+  "name": "budgettrip",
   "version": "1.0.0",
   "description": "India's smartest AI-powered travel guide & booking platform.",
   "main": "server.js",
@@ -13,8 +13,19 @@
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "db": "^6.0.3",
+    "dotenv": "^17.3.1",
     "express": "^5.2.1",
+    "express-session": "^1.19.0",
     "mysql2": "^3.17.4",
-    "nodemon": "^3.1.14"
-  }
+    "nodemon": "^3.1.14",
+    "openai": "^6.22.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Vijayraj002/BudgetTrip.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Vijayraj002/BudgetTrip/issues"
+  },
+  "homepage": "https://github.com/Vijayraj002/BudgetTrip#readme"
 }
