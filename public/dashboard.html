@@ -1,24 +1,32 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Dashboard</title>
-</head>
-<body style="font-family:sans-serif;padding:40px">
-  <h1>Welcome to Your Dashboard 🎉</h1>
-  <div id="user-info"></div>
-  <br>
-  <a href="/logout">Logout</a>
 
-  <script>
-    fetch("/user")
-      .then(res => res.json())
-      .then(data => {
-        if(data.loggedIn){
-          document.getElementById("user-info").innerHTML =
-            `<h3>Hello, ${data.user.name} 👋</h3>
-             <p>Email: ${data.user.email}</p>`;
-        }
-      });
-  </script>
-</body>
-</html>
+<script>
+
+async function generateTrips() {
+  const budget = document.getElementById("budget").value;
+
+  const res = await fetch("/api/generate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ budget })
+  });
+
+  const data = await res.json();
+
+  const container = document.getElementById("results");
+  container.innerHTML = "";
+
+  data.forEach(city => {
+    container.innerHTML += `
+      <div class="card" onclick="openPlace('${city.slug}')">
+        <img src="${city.mainImage}" />
+        <h3>${city.name}</h3>
+        <p>₹${city.avgCostPerDay}/day</p>
+      </div>
+    `;
+  });
+}
+
+function openPlace(slug) {
+  window.location.href = "/place/" + slug;
+}
+</script>

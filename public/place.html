@@ -1,0 +1,139 @@
+
+<!-- <!DOCTYPE html>
+<html>
+<head>
+  <title>Place Details</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+  <div id="place-container"></div>
+
+  <script src="place.js"></script>
+
+
+
+  <script>
+const params = new URLSearchParams(window.location.search);
+const slug = params.get("slug");
+
+async function loadCity() {
+  const res = await fetch(`/api/city/${slug}`);
+  const city = await res.json();
+
+  document.getElementById("city-name").innerText = city.name;
+  document.getElementById("city-description").innerText = city.description;
+  document.getElementById("city-price").innerText = "₹" + city.avgCostPerDay + "/day";
+  document.getElementById("city-image").src = city.mainImage;
+
+  const attractionsList = document.getElementById("attractions");
+  attractionsList.innerHTML = "";
+
+  city.attractions.forEach(a => {
+    const li = document.createElement("li");
+    li.innerText = a.name;
+    attractionsList.appendChild(li);
+  });
+}
+
+loadCity();
+</script>
+</body>
+</html> -->
+<!-- <script>
+const slug = window.location.pathname.split("/").pop();
+
+fetch("/api/place/" + slug)
+  .then(res => res.json())
+  .then(city => {
+    document.getElementById("title").innerText = city.name;
+  });
+
+  </script> -->
+
+
+
+  <!DOCTYPE html>
+<html>
+<head>
+  <title>Place Details</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="place-page">
+
+  <div class="place-container">
+    <h1 id="city-name"></h1>
+
+    <img id="city-image" class="place-main-img"/>
+
+    <div class="place-info">
+      <h3 id="city-price"></h3>
+
+      <h2>About</h2>
+      <p id="city-description"></p>
+
+      <h2>✨ Attractions</h2>
+
+        <div class="slider-wrapper">
+        <button class="slide-btn left" onclick="slideAttractions(-1)">❮</button>
+
+          <div class="attraction-slider" id="attractionSlider">
+                    <!-- Cards will be added dynamically -->
+        </div>
+
+                <button class="slide-btn right" onclick="slideAttractions(1)">❯</button>
+            </div>
+    </div>
+  </div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const slug = params.get("slug");
+
+async function loadCity() {
+  const res = await fetch(`/api/city/${slug}`);
+  const city = await res.json();
+
+  document.getElementById("city-name").innerText = city.name;
+  document.getElementById("city-description").innerText = city.description;
+  document.getElementById("city-price").innerText = "₹" + city.avgCostPerDay + "/day";
+  document.getElementById("city-image").src = city.mainImage;
+
+  // const attractionsList = document.getElementById("attractions");
+  // attractionsList.innerHTML = "";
+
+  // city.attractions.forEach(a => {
+  //   const li = document.createElement("li");
+  //   li.innerText = a.name;
+  //   attractionsList.appendChild(li);
+  // });
+
+  const slider = document.getElementById("attractionSlider");
+
+city.attractions.forEach(a => {
+  const card = document.createElement("div");
+  card.classList.add("attraction-card");
+
+  card.innerHTML = `
+    <img src="${a.image || '/images/default.jpg'}">
+    <h4>${a.name}</h4>
+    <p>${a.description || ''}</p>
+  `;
+
+  slider.appendChild(card);
+});
+}
+function slideAttractions(direction) {
+  const slider = document.getElementById("attractionSlider");
+  const scrollAmount = 300 * 4; // 4 cards width
+  slider.scrollBy({
+    left: direction * scrollAmount,
+    behavior: "smooth"
+  });
+}
+
+loadCity();
+</script>
+ <script src="place.js"></script>
+</body>
+</html>

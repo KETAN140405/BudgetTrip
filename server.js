@@ -3,43 +3,101 @@ const express = require("express");
 const path = require("path");
 const bcrypt = require("bcryptjs");
 const session = require("express-session");
-const db = require("./db");
+const db = require("./config/db");
 const OpenAI = require("openai");
-const fs = require("fs");
 
-// ── Load city data ────────────────────────────────────────────────────────────
-let cities = [];
-try {
-  cities = JSON.parse(fs.readFileSync("./data.json", "utf-8"));
-  console.log(`Cities loaded: ${cities.length}`);
-} catch (err) {
-  console.error("❌ Failed to load data.json:", err.message);
-  // Server still starts; /api/ai will return empty results rather than crashing
-}
-
+const connectMongo = require("./config/mongo");
+const City = require("./models/city");
+const cityRoutes = require("./routes/cityRoutes");
 const app = express();
+connectMongo(); // ✅ Proper Mongo connection
 
-// ── OpenAI client ─────────────────────────────────────────────────────────────
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+
+
+// ── Middleware ─────────────────────────────
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.use(session({
+  secret: process.env.SESSION_SECRET || "supersecretkey",
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    maxAge: 7 * 24 * 60 * 60 * 1000
+  }
+}));
+app.use("/api", require("./routes/cityRoutes"));
+app.use(express.static(path.join(__dirname, "public")));
+
+
+// Routes
+// app.use("/api/places", require("../routes/placeRoutes"));
+
+
+// app.get("/place/:slug", async (req, res) => {
+//   res.sendFile(path.join(__dirname, "public", "place.html"));
+// });
+
+// app.get("/api/place/:slug", async (req, res) => {
+//   const city = await City.findOne({ slug: req.params.slug });
+//   res.json(city);
+// });
+
+
+app.get("/place/:slug", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "place.html"));
 });
 
+app.get("/api/place/:slug", async (req, res) => {
+  const place = await City.findOne({ slug: req.params.slug });
+
+  if (!place) return res.status(404).json({ error: "Not found" });
+
+  res.json(place);
+});
+
+// let cities = [];
+
+// try {
+//   const dataPath = path.join(__dirname, "data.json");
+
+//   if (!fs.existsSync(dataPath)) {
+//     throw new Error("data.json file not found");
+//   }
+
+//   const rawData = fs.readFileSync(dataPath, "utf-8");
+//   cities = JSON.parse(rawData);
+
+//   if (!Array.isArray(cities)) {
+//     throw new Error("data.json must contain an array");
+//   }
+
+//   console.log("✅ Cities loaded:", cities.length);
+
+// } catch (err) {
+//   console.error("❌ Failed to load cities:", err.message);
+//   cities = [];
+// }
+
+
 // ── Middleware ────────────────────────────────────────────────────────────────
-app.use(express.static(__dirname));
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || "fallback-dev-secret",
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      // In production set secure:true and serve over HTTPS
-      httpOnly: true,
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
-    },
-  })
-);
+// app.use(express.static(__dirname));
+// app.use(express.urlencoded({ extended: true }));
+// app.use(express.json());
+// app.use(
+//   session({
+//     secret: process.env.SESSION_SECRET || "fallback-dev-secret",
+//     resave: false,
+//     saveUninitialized: false,
+//     cookie: {
+//       // In production set secure:true and serve over HTTPS
+//       httpOnly: true,
+//       maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
+//     },
+//   })
+// );
 
 // ── Static routes ─────────────────────────────────────────────────────────────
 app.get("/", (req, res) => {
@@ -50,7 +108,7 @@ app.use("/style.css", express.static(path.join(__dirname, "style.css")));
 
 // ── Auth: current user ────────────────────────────────────────────────────────
 app.get("/user", (req, res) => {
-  if (req.session.user) {
+  if (req.session && req.session.user) {
     res.json({ loggedIn: true, user: req.session.user });
   } else {
     res.json({ loggedIn: false });
@@ -140,18 +198,25 @@ app.get("/logout", (req, res) => {
 });
 
 // ── Place page (SSR shell) ────────────────────────────────────────────────────
-app.get("/place/:slug", (req, res) => {
-  const place = cities.find(c => c.slug === req.params.slug);
-  if (!place) return res.status(404).send("Place not found");
-  res.sendFile(path.join(__dirname, "public", "place.html"));
-});
+// app.get("/place/:slug", async (req, res) => {
+//   const place = await City.findOne({ slug: req.params.slug });
+
+//   if (!place) return res.status(404).send("Place not found");
+
+//   res.sendFile(path.join(__dirname, "public", "place.html"));
+// });
 
 // ── Place API ─────────────────────────────────────────────────────────────────
-app.get("/api/place/:slug", (req, res) => {
-  const place = cities.find(c => c.slug === req.params.slug);
-  if (!place) return res.status(404).json({ error: "Place not found" });
-  res.json(place);
-});
+// app.get("/api/place/:slug", (req, res) => {
+//   const place = cities.find(c => c.slug === req.params.slug);
+//   if (!place) return res.status(404).json({ error: "Place not found" });
+//   res.json(place);
+// });
+// app.get("/api/place/:slug", async (req, res) => {
+//   const place = await City.findOne({ slug: req.params.slug });
+//   if (!place) return res.status(404).json({ error: "Not found" });
+//   res.json(place);
+// });
 
 // ── OpenAI text recommendation ────────────────────────────────────────────────
 app.post("/api/ai-recommend", async (req, res) => {
@@ -179,64 +244,118 @@ app.post("/api/ai-recommend", async (req, res) => {
   }
 });
 
+
+
+
+
+
+
+// Start Server
+
+
+
 // ── Main AI filter + scoring endpoint ────────────────────────────────────────
-app.post("/api/ai", (req, res) => {
-  try {
-    const { budget, type, minRating, state, search } = req.body;
+// app.post("/api/ai", (req, res) => {
+//   try {
+//     const { budget, type, minRating, state, search } = req.body;
 
-    if (!budget) {
-      return res.status(400).json({ error: "Budget is required" });
-    }
+//     if (!budget) {
+//       return res.status(400).json({ error: "Budget is required" });
+//     }
 
-    const numericBudget = parseInt(budget, 10);
-    if (isNaN(numericBudget) || numericBudget <= 0) {
-      return res.status(400).json({ error: "Budget must be a positive number" });
-    }
+//     const numericBudget = parseInt(budget, 10);
+//     if (isNaN(numericBudget) || numericBudget <= 0) {
+//       return res.status(400).json({ error: "Invalid budget value" });
+//     }
 
-    const filtered = cities.filter(city => {
-      // FIX #4: Changed from 1.5x (50% over budget) to 1.1x (10% tolerance)
-      // This ensures budget filtering is actually meaningful
-      const budgetMatch = city.avgCostPerDay <= numericBudget * 1.1;
+//     if (!Array.isArray(cities)) {
+//       return res.status(500).json({ error: "City data not loaded properly" });
+//     }
 
-      const typeMatch = !type || city.type === type;
+//     const filtered = cities.filter(city => {
+//       const budgetMatch = city.avgCostPerDay <= numericBudget * 1.1;
+//       const typeMatch = !type || city.type === type;
+//       const ratingMatch = !minRating || city.rating >= parseFloat(minRating);
+//       const stateMatch = !state || city.state === state;
+//       const searchMatch =
+//         !search ||
+//         city.name.toLowerCase().includes(search.toLowerCase());
 
-      const ratingMatch = !minRating || city.rating >= parseFloat(minRating);
+//       return budgetMatch && typeMatch && ratingMatch && stateMatch && searchMatch;
+//     });
 
-      const stateMatch = !state || city.state === state;
+//     const scored = filtered.map(city => {
+//       const budgetDiff = Math.abs(city.avgCostPerDay - numericBudget);
+//       const budgetScore = Math.max(0, 100 - (budgetDiff / numericBudget) * 100);
+//       const ratingScore = city.rating * 10;
+//       const finalScore = budgetScore * 0.6 + ratingScore * 0.4;
 
-      const searchMatch =
-        !search ||
-        city.name.toLowerCase().includes(search.toLowerCase()) ||
-        (city.city && city.city.toLowerCase().includes(search.toLowerCase()));
+//       return { ...city, aiScore: Math.round(finalScore) };
+//     });
 
-      return budgetMatch && typeMatch && ratingMatch && stateMatch && searchMatch;
-    });
+//     const sorted = scored.sort((a, b) => b.aiScore - a.aiScore);
 
-    // Score remaining cities by how close they are to the budget + their rating
-    const scored = filtered.map(city => {
-      const budgetDiff = Math.abs(city.avgCostPerDay - numericBudget);
-      // Normalise: 0 diff = 100, cost equal to budget = 100, higher diff = lower score
-      const budgetScore = Math.max(0, 100 - (budgetDiff / numericBudget) * 100);
-      const ratingScore = city.rating * 10; // rating out of 5 → 0–50 range
+//     res.json(sorted.slice(0, 10));
 
-      const finalScore = budgetScore * 0.6 + ratingScore * 0.4;
+//   } catch (err) {
+//     console.error("AI ERROR:", err);
+//     res.status(500).json({ error: "AI server error" });
+//   }
+// });
+// const City = require("../models/City");
 
-      return { ...city, aiScore: Math.round(finalScore) };
-    });
+// app.post("/api/ai", async (req, res) => {
+//   try {
+//     const { budget, type } = req.body;
 
-    const sorted = scored.sort((a, b) => b.aiScore - a.aiScore);
+//     if (!budget) {
+//       return res.status(400).json({ error: "Budget required" });
+//     }
 
-    return res.json(sorted.slice(0, 10));
-  } catch (err) {
-    console.error("AI ERROR:", err);
-    return res.status(500).json({ error: "AI server error" });
-  }
-});
+//     const numericBudget = parseInt(budget);
 
-// ── 404 fallback ──────────────────────────────────────────────────────────────
-app.use((req, res) => {
-  res.status(404).send("Page not found");
-});
+//     // MongoDB Query
+//     const cities = await City.find({
+//       avgCostPerDay: { $lte: numericBudget * 1.1 }
+//     });
+
+//     if (!cities.length) {
+//       return res.json([]);
+//     }
+
+//     // AI Scoring Logic
+//     const scored = cities.map(city => {
+//       const budgetDiff = Math.abs(city.avgCostPerDay - numericBudget);
+//       const budgetScore = Math.max(0, 100 - (budgetDiff / numericBudget) * 100);
+//       const ratingScore = city.rating * 10;
+
+//       const finalScore = budgetScore * 0.6 + ratingScore * 0.4;
+
+//       return {
+//         ...city.toObject(),
+//         aiScore: Math.round(finalScore)
+//       };
+//     });
+
+//     scored.sort((a, b) => b.aiScore - a.aiScore);
+
+//     res.json(scored.slice(0, 6));
+
+//   } catch (err) {
+//     console.error("AI ERROR:", err);
+//     res.status(500).json({ error: "Server error" });
+//   }
+// });
+
+// app.get("/import-cities", async (req, res) => {
+//   try {
+//     const count = await importIndianCities();
+//     res.json({ message: "Cities Imported", count });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ error: "Import failed" });
+//   }
+// });
 
 // ── Start ─────────────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;

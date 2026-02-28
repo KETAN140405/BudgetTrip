@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BudgetTrip AI — Discover India Within Your Budget</title>
-  <link rel="stylesheet" href="public/style.css">
+  <link rel="stylesheet" href="/style.css">
   <meta name="description" content="India's smartest travel platform. Find tourist places, hotels, restaurants & rentals — all in one AI-powered platform for budget and premium travelers." />
   <meta name="keywords" content="travel india, budget travel, hotels india, goa, manali, jaipur, travel planner, AI travel" />
   <meta property="og:title" content="TravelMate AI — Discover India Within Your Budget" />
@@ -426,14 +426,33 @@ function openrestaurantBooking()  { _externalRedirect("https://www.zomato.com");
 
 <!-- ══════════════════════════ PLACE DETAIL MODAL ═══════════════════════════ -->
 <!-- FIX #1 & #3: Separate modal with its own open/close functions -->
-<div id="place-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center;padding:20px" onclick="closePlaceModalOuter(event)">
+<!-- <div id="place-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center;padding:20px" onclick="closePlaceModalOuter(event)">
   <div id="place-modal-inner" style="background:var(--bg1,#0d0d0d);border-radius:16px;max-width:600px;width:100%;max-height:85vh;overflow-y:auto;padding:28px;position:relative">
     <button onclick="closePlaceModal()" style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--text1)">&times;</button>
     <div id="place-modal-body"></div>
   </div>
 </div>
 
-<div id="toast-container"></div>
+<div id="toast-container"></div> -->
+
+<!-- FULLSCREEN PLACE PAGE -->
+<div id="place-modal" 
+     style="display:none;position:fixed;inset:0;background-color: rgb(0, 3, 6);z-index:9999;overflow-y:auto;">
+
+  <div style="max-width:1200px;margin:auto;padding:40px 24px;">
+
+    <button onclick="closePlaceModal()" 
+            style="position:fixed;top:20px;right:30px;
+                   background:#ff4d4d;border:none;
+                   padding:10px 16px;border-radius:8px;
+                   color:white;font-weight:600;cursor:pointer;">
+      ✕ Close
+    </button>
+
+    <div id="place-modal-body"></div>
+
+  </div>
+</div>
 
 <!-- ═══════════════════════════════════════════════════ JAVASCRIPT ═══════════ -->
 <script>
@@ -664,11 +683,44 @@ function runAI(el, bud) {
   el.classList.add('active');
 }
 
+// async function triggerAI() {
+//   const thinking = document.getElementById('ai-thinking');
+//   const cardsDiv = document.getElementById('ai-cards');
+
+//   // FIX #5: Clear only ai-cards, not the thinking spinner (which is now outside ai-cards)
+//   cardsDiv.innerHTML = '';
+//   thinking.style.display = 'flex';
+
+//   const budgetMap = { low: 2000, medium: 5000, luxury: 10000 };
+//   const numericBudget = budgetMap[aiBudget] || 5000;
+
+//   try {
+//     const res = await fetch('/api/ai', {
+//       method: 'POST',
+//       headers: { 'Content-Type': 'application/json' },
+//       body: JSON.stringify({ budget: numericBudget, type: '' })
+//     });
+
+//     if (!res.ok) throw new Error(`Server error: ${res.status}`);
+//     const data = await res.json();
+
+//     thinking.style.display = 'none';
+//     renderAICards(data);
+//     showCitiesOnMap(data);
+//     showToast('🤖 AI Recommendations Generated!', 'success');
+//   } catch (err) {
+//     thinking.style.display = 'none';
+//     // Fallback to static recs if server is unavailable
+//     showAICards(aiBudget);
+//     showToast('Using offline recommendations (server unavailable)', 'warning');
+//   }
+// }
+
+
 async function triggerAI() {
   const thinking = document.getElementById('ai-thinking');
   const cardsDiv = document.getElementById('ai-cards');
 
-  // FIX #5: Clear only ai-cards, not the thinking spinner (which is now outside ai-cards)
   cardsDiv.innerHTML = '';
   thinking.style.display = 'flex';
 
@@ -676,74 +728,256 @@ async function triggerAI() {
   const numericBudget = budgetMap[aiBudget] || 5000;
 
   try {
-    const res = await fetch('/api/ai', {
+    const res = await fetch('/api/generate', {   // ✅ FIXED
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ budget: numericBudget, type: '' })
+      body: JSON.stringify({ budget: numericBudget })
     });
 
     if (!res.ok) throw new Error(`Server error: ${res.status}`);
+
     const data = await res.json();
 
     thinking.style.display = 'none';
     renderAICards(data);
-    showCitiesOnMap(data);
     showToast('🤖 AI Recommendations Generated!', 'success');
+
   } catch (err) {
     thinking.style.display = 'none';
-    // Fallback to static recs if server is unavailable
-    showAICards(aiBudget);
-    showToast('Using offline recommendations (server unavailable)', 'warning');
+    showToast('Server unavailable', 'error');
   }
 }
 
-function renderAICards(places) {
-  const container = document.getElementById('ai-cards');
-  container.innerHTML = '';
+async function generateRecommendations() {
+  const budget = document.getElementById("budget").value;
 
-  if (!places || places.length === 0) {
-    container.innerHTML = `<div style="color:var(--text3);text-align:center;padding:24px">No destinations found for this budget. Try adjusting your range.</div>`;
+  const response = await fetch("/api/ai", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ budget })
+  });
+
+  const data = await response.json();
+  displayCities(data);
+}
+
+
+async function generateCities() {
+  await fetch("http://localhost:5000/api/generate", {
+    method: "POST"
+  });
+
+  loadCities();
+}
+
+async function loadCities() {
+  const res = await fetch("http://localhost:5000/api/cities");
+  const data = await res.json();
+
+  const container = document.getElementById("destinations");
+  container.innerHTML = "";
+
+  data.forEach(city => {
+    container.innerHTML += `
+      <div class="card">
+        <img src="${city.image}" />
+        <h3>${city.name}</h3>
+        <p>${city.description}</p>
+      </div>
+    `;
+  });
+}
+
+function renderAICards(data) {
+  const cardsDiv = document.getElementById('ai-cards');
+  cardsDiv.innerHTML = '';
+
+  if (!data || data.length === 0) {
+    cardsDiv.innerHTML = `
+      <div style="padding:20px;color:var(--text3)">
+        😔 No destinations match your budget.
+      </div>
+    `;
     return;
   }
 
-  places.forEach(place => {
+  data.forEach((place, index) => {
     const card = document.createElement('div');
     card.className = 'ai-card';
+
     card.innerHTML = `
       <div class="ai-card-head">
         <div class="ai-card-city">📍 ${place.name}</div>
-        <div class="ai-match">AI Score ${place.aiScore || ''}</div>
+        <div class="ai-match">⭐ ${place.rating}</div>
       </div>
       <div class="ai-card-budget">₹${place.avgCostPerDay}/day</div>
-      <div class="ai-card-why">${place.description || 'Beautiful destination in India'}</div>
+      <div class="ai-card-why">
+        ${place.description || 'Perfect match for your budget.'}
+      </div>
       <button class="btn btn-primary btn-sm"
-        onclick="showPlaceDetails(${JSON.stringify(place).replace(/"/g, '&quot;')})"
-        style="margin-top:12px;width:100%">
+        style="margin-top:14px;width:100%"
+        onclick='showPlaceDetails(${JSON.stringify(place)})'>
         View Details →
-      </button>`;
-    container.appendChild(card);
+      </button>
+    `;
+
+    cardsDiv.appendChild(card);
+
+    setTimeout(() => {
+      card.classList.add('show');
+    }, 100 * index);
   });
 }
 
 // FIX #1 & #3: Renamed to showPlaceDetails → opens the dedicated place modal
+// function showPlaceDetails(place) {
+//   const modal = document.getElementById('place-modal');
+//   const body = document.getElementById('place-modal-body');
+
+//   const images = place.images || [];
+//   const highlights = place.highlights || [];
+
+//   body.innerHTML = `
+//     <h2 style="margin-bottom:8px">${place.name}</h2>
+//     <p style="color:var(--text3);margin-bottom:10px">
+//       ${place.state || ''} • ${(place.type || '').toUpperCase()}
+//     </p>
+
+//     <div style="display:flex;gap:10px;overflow-x:auto;margin-bottom:16px">
+//       ${images.length
+//         ? images.map(img => `
+//           <img src="${img}?w=600&auto=format"
+//                style="height:180px;border-radius:12px;object-fit:cover">
+//         `).join('')
+//         : '<p>No images available</p>'}
+//     </div>
+
+//     <p style="margin-bottom:14px">
+//       ${place.description || 'No description available.'}
+//     </p>
+
+//     <div style="margin-bottom:14px">
+//       <strong>⭐ Rating:</strong> ${place.rating || 'N/A'}
+//       <br>
+//       <strong>💰 Avg Cost:</strong> ₹${place.avgCostPerDay || 'N/A'}/day
+//     </div>
+
+//     <div style="margin-bottom:16px">
+//       <strong>✨ Highlights:</strong>
+//       <ul style="margin-top:8px;padding-left:18px">
+//         ${highlights.length
+//           ? highlights.map(h => `<li>${h}</li>`).join('')
+//           : '<li>No highlights listed</li>'}
+//       </ul>
+//     </div>
+
+//     ${place.lat && place.lng ? `
+//     <iframe
+//       width="100%"
+//       height="250"
+//       style="border:none;border-radius:12px"
+//       src="https://www.openstreetmap.org/export/embed.html?bbox=${place.lng-0.1}%2C${place.lat-0.1}%2C${place.lng+0.1}%2C${place.lat+0.1}&layer=mapnik&marker=${place.lat}%2C${place.lng}">
+//     </iframe>` : ''}
+//   `;
+
+//   modal.style.display = 'flex';
+//   document.body.style.overflow = 'hidden';
+// }
+
 function showPlaceDetails(place) {
+
   const modal = document.getElementById('place-modal');
   const body = document.getElementById('place-modal-body');
+
+  const images = place.images || [];
+  const highlights = place.highlights || [];
+  const attractions = place.attractions || [];
+  const visitPlaces = place.placesToVisit || [];
+
   body.innerHTML = `
-    <h2 style="margin-bottom:12px">${place.name}</h2>
-    <p><strong>State:</strong> ${place.state || 'India'}</p>
-    <p><strong>Type:</strong> ${place.type || '—'}</p>
-    <p><strong>Budget:</strong> ₹${place.avgCostPerDay}/day</p>
-    <p><strong>Rating:</strong> ⭐ ${place.rating || '—'}</p>
-    <p style="margin:12px 0">${place.description || ''}</p>
-    <iframe
-      width="100%"
-      height="250"
-      style="border:none;border-radius:10px;margin-top:8px"
-      src="https://www.openstreetmap.org/export/embed.html?bbox=${place.lng-0.1}%2C${place.lat-0.1}%2C${place.lng+0.1}%2C${place.lat+0.1}&layer=mapnik&marker=${place.lat}%2C${place.lng}">
-    </iframe>`;
-  modal.style.display = 'flex';
+    <!-- HERO IMAGE -->
+    <div style="margin-bottom:30px">
+      <h1 style="font-size:42px;margin-bottom:8px">${place.name}</h1>
+      <p style="color:var(--text3);font-size:18px">
+        ${place.state || ''} • ⭐ ${place.rating || 'N/A'} • ₹${place.avgCostPerDay || 'N/A'}/day
+      </p>
+    </div>
+
+    <!-- IMAGE GALLERY -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;margin-bottom:40px">
+      ${images.length
+        ? images.map(img => `
+          <img src="${img}"
+               style="width:100%;height:250px;
+                      object-fit:cover;
+                      border-radius:16px;
+                      transition:0.3s;
+                      cursor:pointer"
+               onmouseover="this.style.transform='scale(1.05)'"
+               onmouseout="this.style.transform='scale(1)'">
+        `).join('')
+        : '<p>No images available</p>'
+      }
+    </div>
+
+    <!-- DESCRIPTION -->
+    <div style="margin-bottom:40px">
+      <h2>About</h2>
+      <p style="line-height:1.8;color:var(--text2)">
+        ${place.description || 'No description available.'}
+      </p>
+    </div>
+
+    <!-- HIGHLIGHTS -->
+    <div style="margin-bottom:40px">
+      <h2>✨ Attractions</h2>
+      <ul style="padding-left:20px;line-height:1.8">
+        ${highlights.length
+          ? highlights.map(h => `<li>${h}</li>`).join('')
+          : '<li>No attractions listed</li>'
+        }
+      </ul>
+    </div>
+
+    <!-- PLACES TO VISIT -->
+    <div style="margin-bottom:40px">
+      <h2>📍 Places To Visit</h2>
+      <ul style="padding-left:20px;line-height:1.8">
+        ${visitPlaces.length
+          ? visitPlaces.map(p => `<li>${p}</li>`).join('')
+          : '<li>No places listed</li>'
+        }
+      </ul>
+    </div>
+
+    <!-- MAP -->
+    ${place.lat && place.lng ? `
+      <div style="margin-bottom:60px">
+        <h2>🗺️ Location</h2>
+        <iframe
+          width="100%"
+          height="400"
+          style="border:none;border-radius:16px"
+          src="https://www.openstreetmap.org/export/embed.html?bbox=${place.lng-0.1}%2C${place.lat-0.1}%2C${place.lng+0.1}%2C${place.lat+0.1}&layer=mapnik&marker=${place.lat}%2C${place.lng}">
+        </iframe>
+      </div>
+    ` : ''}
+  `;
+
+  modal.style.display = 'block';
   document.body.style.overflow = 'hidden';
+}
+
+async function fetchPlace(slug) {
+  try {
+    const res = await fetch(`/api/place/${slug}`);
+    const data = await res.json();
+    showPlaceDetails(data);
+  } catch (err) {
+    showToast("Failed to load place details", "error");
+  }
 }
 
 function closePlaceModal() {
@@ -775,6 +1009,24 @@ function showAICards(bud) {
     setTimeout(() => card.classList.add('show'), 100 * i);
   });
 }
+
+async function generateAI() {
+  const budget = document.getElementById("budget").value;
+
+  const res = await fetch("/api/ai", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ budget })
+  });
+
+  const data = await res.json();
+  renderCards(data);
+}
+
+
+
+
+
 
 /* ── Pricing ───────────────────────────────────────────────────────────────── */
 function toggleBilling() {
@@ -871,5 +1123,6 @@ function showCitiesOnMap(cities) {
   }
 }
 </script>
+<script src="place.js"></script>
 </body>
 </html>
