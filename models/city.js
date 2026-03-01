@@ -10,7 +10,7 @@ const citySchema = new mongoose.Schema({
   name: { type: String, required: true },
   slug: { type: String, unique: true },
   state: String,
-  type: String, // beach, hill, heritage, etc
+  type: String,
   avgCostPerDay: Number,
   rating: Number,
   description: String,

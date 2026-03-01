@@ -1,115 +1,51 @@
-// const mongoose = require("mongoose");
+const slug = window.location.pathname.split("/").pop();
 
-// const placeSchema = new mongoose.Schema({
-//   name: { type: String, required: true, index: true },
-//   slug: { type: String, unique: true },
-//   state: String,
-//   description: String,
-//   type: String, // beach, hill, heritage
-//   avgCostPerDay: Number,
-//   rating: { type: Number, default: 4.5 },
-
-//   images: [String],
-
-//   highlights: [String],
-
-//   location: {
-//     lat: Number,
-//     lng: Number
-//   }
-
-// }, { timestamps: true });
-
-// placeSchema.index({ name: "text", description: "text" });
-
-// module.exports = mongoose.model("Place", placeSchema);
-
-
-async function generateCities() {
-  const budget = document.getElementById("budget").value;
-
+async function loadPlace() {
   try {
-    const response = await fetch("/api/generate", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ budget })
-    });
+    const res = await fetch(`/api/place/${slug}`);
+    const data = await res.json();
 
-    const cities = await response.json();
+    if (!data) return;
 
-    const container = document.getElementById("card-container");
-    container.innerHTML = "";
+    // Basic Info
+    document.getElementById("city-name").innerText = data.name;
+    document.getElementById("city-state").innerText = data.state;
+    document.getElementById("city-description").innerText = data.description;
+    document.getElementById("city-price").innerText = "₹" + data.avgCostPerDay + "/day";
+    document.getElementById("city-rating").innerText = data.rating;
+    document.getElementById("city-type").innerText = data.type;
+    document.getElementById("city-image").src = data.mainImage;
 
-    if (cities.length === 0) {
-      container.innerHTML = "<h2>No cities found</h2>";
-      return;
-    }
+    // Attractions Slider
+    const slider = document.getElementById("attractionSlider");
+    slider.innerHTML = "";
 
-    cities.forEach(city => {
+    data.attractions.forEach(a => {
       const card = document.createElement("div");
-      card.className = "card";
+      card.className = "attraction-card";
 
       card.innerHTML = `
-        <img src="${city.mainImage}" alt="${city.name}">
-        <h3>${city.name}</h3>
-        <p>₹${city.avgCostPerDay} / day</p>
+        <img src="${a.image || '/images/default.jpg'}">
+        <h4>${a.name}</h4>
+        <p>${a.description || ""}</p>
       `;
 
-      card.onclick = () => {
-        window.location.href = `place.html?slug=${city.slug}`;
-      };
-
-      container.appendChild(card);
+      slider.appendChild(card);
     });
 
   } catch (err) {
-    console.error("Error:", err);
+    console.error("Place Load Error:", err);
   }
 }
 
+function slideAttractions(direction) {
+  const slider = document.getElementById("attractionSlider");
+  const cardWidth = 280; // width of one card
+  const visibleCards = 4;
+  slider.scrollBy({
+    left: direction * cardWidth * visibleCards,
+    behavior: "smooth"
+  });
+}
 
-
-// const slug = window.location.pathname.split("/").pop();
-
-// fetch(`/api/place/${slug}`)
-//   .then(res => res.json())
-//   .then(data => {
-
-//     const container = document.getElementById("place-container");
-
-//     container.innerHTML = `
-//       <div class="hero">
-//         <img src="${data.mainImage}" class="hero-img"/>
-//         <div class="hero-overlay">
-//           <h1>${data.name}</h1>
-//           <p>${data.state}</p>
-//         </div>
-//       </div>
-
-//       <div class="info-section">
-//         <h2>About ${data.name}</h2>
-//         <p>${data.description}</p>
-
-//         <div class="stats">
-//           <div>💰 Avg Cost: ₹${data.avgCostPerDay}</div>
-//           <div>⭐ Rating: ${data.rating}</div>
-//           <div>🏷 Type: ${data.type}</div>
-//         </div>
-//       </div>
-
-//       <div class="attractions">
-//         <h2>Top Attractions</h2>
-//         <div class="attraction-grid">
-//           ${data.attractions.map(attr => `
-//             <div class="attraction-card">
-//               <img src="${attr.image}" />
-//               <h3>${attr.name}</h3>
-//               <p>${attr.description}</p>
-//             </div>
-//           `).join("")}
-//         </div>
-//       </div>
-//     `;
-//   });
+document.addEventListener("DOMContentLoaded", loadPlace);

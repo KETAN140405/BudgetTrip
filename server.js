@@ -9,6 +9,7 @@ const OpenAI = require("openai");
 const connectMongo = require("./config/mongo");
 const City = require("./models/city");
 const cityRoutes = require("./routes/cityRoutes");
+
 const app = express();
 connectMongo(); // ✅ Proper Mongo connection
 
@@ -248,7 +249,25 @@ app.post("/api/ai-recommend", async (req, res) => {
 
 
 
+// SEARCH PLACE BY NAME
+// SEARCH CITY BY NAME
+app.get("/api/search", async (req, res) => {
+  try {
+    const query = req.query.q;
 
+    if (!query) return res.json([]);
+
+    const cities = await City.find({
+      name: { $regex: query, $options: "i" }
+    });
+
+    res.json(cities);
+
+  } catch (err) {
+    console.error("Search error:", err);
+    res.status(500).json({ error: "Search failed" });
+  }
+});
 
 // Start Server
 
