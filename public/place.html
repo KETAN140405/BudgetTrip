@@ -5,10 +5,10 @@
   <link rel="stylesheet" href="/style.css">
 </head>
 
-<body class="place-page">
+<body class="place-page" id="place-model">
 
   <div class="place-container">
-
+      <button class="close-page" onclick="goBack()">✖</button>
     <div class="hero">
       <img id="city-image" class="hero-img">
       <div class="hero-overlay">
@@ -41,8 +41,7 @@
         <button class="slide-btn right" onclick="slideAttractions(1)">❯</button>
       </div>
     </div>
-
-  </div>
+       
 
   <script>
 const slug = window.location.pathname.split("/").pop();
@@ -82,6 +81,10 @@ function slideAttractions(direction) {
     behavior: "smooth"
   });
 }
+function goBack() {
+  window.history.back();
+}
+
 </script>
 <script src="/main.js"></script>
 </body>

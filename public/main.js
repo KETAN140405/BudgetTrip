@@ -38,7 +38,7 @@ async function loadTrending() {
   <div class="travel-card" onclick="openPlace('${city.slug}')">
     
     <div class="card-image">
-      <img src="${city.mainImage}" alt="${city.name}">
+      <img src="${city.mainImage}" >
       
       <div class="card-badge">
         🌴 ${city.type || "Destination"}
@@ -67,10 +67,7 @@ async function loadTrending() {
         ).join("")}
       </div>
 
-      <div class="card-rating">
-        ⭐ ${city.rating || 4.5}
-        <span class="verified">✔ Verified</span>
-      </div>
+     
 
       <button class="view-btn">View Details →</button>
 
