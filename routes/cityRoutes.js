@@ -3,7 +3,7 @@ const router = express.Router();
 const City = require("../models/city");
 
 
-// 🔥 Trending + Search
+//  Trending + Search
 router.get("/trending", async (req, res) => {
   const search = req.query.search || "";
 
@@ -12,12 +12,12 @@ router.get("/trending", async (req, res) => {
    { name: { $regex: search, $options: "i" }},
     { state: { $regex: search, $options: "i" } }
     ]
-  }).limit(12);
+  }).limit(6);
 
   res.json(cities);
 });
 
-// // // 🔥 Budget Generate
+// // //  Budget Generate
 router.post("/generate", async (req, res) => {
   const { budget } = req.body;
 

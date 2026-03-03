@@ -11,7 +11,7 @@ const City = require("./models/city");
 const cityRoutes = require("./routes/cityRoutes");
 
 const app = express();
-connectMongo(); // ✅ Proper Mongo connection
+connectMongo(); 
 
 
 
@@ -174,5 +174,5 @@ app.get("/api/cities", async (req, res) => {
 // ── Start ─────────────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`✅ Server running on http://localhost:${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });
