@@ -1,259 +1,4 @@
-<!-- <!DOCTYPE html>
-<html>
-<head>
-  <title>Place Details</title>
-  <link rel="stylesheet" href="/style.css">
-</head>
 
-<body class="place-page" id="place-model">
-
-  <div class="place-container">
-      <button class="close-page" onclick="goBack()">✖</button>
-    <div class="hero">
-      <img id="city-image" class="hero-img">
-      <div class="hero-overlay">
-        <h1 id="city-name"></h1>
-        <p id="city-state"></p>
-      </div>
-    </div>
-
-    <div class="info-section">
-      <h2>About</h2>
-      <p id="city-description"></p>
-
-      <div class="stats">
-        <div>💰 Avg Cost: <span id="city-price"></span></div>
-        <div>⭐ Rating: <span id="city-rating"></span></div>
-        <div>🏷 Type: <span id="city-type"></span></div>
-      </div>
-    </div>
-
-    <div class="attractions">
-      <h2>✨ Top Attractions</h2>
-
-      <div class="slider-wrapper">
-        <button class="slide-btn left" onclick="slideAttractions(-1)">❮</button>
-
-        <div class="attraction-slider" id="attractionSlider">
-          
-        </div>
-
-        <button class="slide-btn right" onclick="slideAttractions(1)">❯</button>
-      </div>
-    </div>
-       
-
-  <script>
-const slug = window.location.pathname.split("/").pop();
-
-fetch(`/api/place/${slug}`)
-  .then(res => res.json())
-  .then(data => {
-
-    document.getElementById("city-name").innerText = data.name;
-    document.getElementById("city-description").innerText = data.description;
-    document.getElementById("city-price").innerText = "₹" + data.avgCostPerDay + "/day";
-    document.getElementById("city-image").src = data.mainImage;
-
-    const slider = document.getElementById("attractionSlider");
-    slider.innerHTML = "";
-
-    if (data.attractions) {
-      data.attractions.forEach(a => {
-        const card = document.createElement("div");
-        card.classList.add("attraction-card");
-
-        card.innerHTML = `
-          <img src="${a.image}">
-          <h4>${a.name}</h4>
-          <p>${a.description}</p>
-        `;
-
-        slider.appendChild(card);
-      });
-    }
-  });
-
-function slideAttractions(direction) {
-  const slider = document.getElementById("attractionSlider");
-  slider.scrollBy({
-    left: direction * 1000,
-    behavior: "smooth"
-  });
-}
-function goBack() {
-  window.history.back();
-}
-
-</script>
-<script src="/main.js"></script>
-</body>
-</html> -->
-<!-- <!DOCTYPE html>
-<html>
-<head>
-  <title>Place Details</title>
-  <link rel="stylesheet" href="/style.css">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script src="/main.js"></script>
-</head>
-
-<body class="place-page">
-
-<div class="place-container">
-
-  <button class="close-page" onclick="goBack()">✖</button>
-
-  
-  <div class="gallery-container">
-    <button class="gallery-btn left" onclick="changeSlide(-1)">❮</button>
-    <div class="gallery-slider" id="gallerySlider"></div>
-    <button class="gallery-btn right" onclick="changeSlide(1)">❯</button>
-  </div>
-
-  
-  <div class="info-section">
-    <h1 id="city-name"></h1>
-    <p class="state" id="city-state"></p>
-
-    <div class="stats">
-      <div>💰 Avg Cost: <span id="city-price"></span></div>
-      <div>⭐ Rating: <span id="city-rating"></span></div>
-      <div>🏷 Type: <span id="city-type"></span></div>
-    </div>
-
-    <h2>About</h2>
-    <p id="city-description"></p>
-
-    <h2>Information</h2>
-    <P id="city-information"></P>
-  </div>
-
-  
-  <div class="attractions">
-    <h2>✨ Top Attractions</h2>
-
-    <div class="slider-wrapper">
-      <button class="slide-btn left" onclick="slideAttractions(-1)">❮</button>
-      <div class="attraction-slider" id="attractionSlider"></div>
-      <button class="slide-btn right" onclick="slideAttractions(1)">❯</button>
-    </div>
-  </div>
-
-  
-  <div class="map-section">
-    <h2>📍 Location</h2>
-    <div id="map" style="height:400px;border-radius:16px;"></div>
-  </div>
-
-</div>
-
-<script>
-const slug = window.location.pathname.split("/").pop();
-let currentSlide = 0;
-let slides = [];
-let map;
-
-fetch(`/api/place/${slug}`)
-  .then(res => res.json())
-  .then(data => {
-
-    
-    document.getElementById("city-name").innerText = data.name;
-    document.getElementById("city-state").innerText = data.state;
-    document.getElementById("city-description").innerText = data.description;
-    document.getElementById("city-price").innerText = "₹" + data.avgCostPerDay + "/day";
-    document.getElementById("city-rating").innerText = data.rating || "N/A";
-    document.getElementById("city-type").innerText = data.type || "Tourist Place";
-    document.getElementById("city-information").innerText = data.information;
-    
-    const gallery = document.getElementById("gallerySlider");
-    gallery.innerHTML = "";
-
-    const images = data.images && data.images.length
-      ? data.images
-      : [data.mainImage];
-
-    images.forEach((img, index) => {
-      const div = document.createElement("div");
-      div.classList.add("gallery-slide");
-      if(index === 0) div.classList.add("active");
-
-      div.innerHTML = `<img src="${img}">`;
-      gallery.appendChild(div);
-    });
-
-    slides = document.querySelectorAll(".gallery-slide");
-
-    
-    const slider = document.getElementById("attractionSlider");
-    slider.innerHTML = "";
-
-    if (data.attractions) {
-      data.attractions.forEach(a => {
-        const card = document.createElement("div");
-        card.classList.add("attraction-card");
-
-        card.innerHTML = `
-          <img src="${a.image}">
-          <h4>${a.name}</h4>
-          <p>${a.description}</p>
-        `;
-
-        slider.appendChild(card);
-      });
-    }
-
-    
-    if(data.lat && data.lng){
-      map = L.map('map').setView([data.lat, data.lng], 12);
-
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-      }).addTo(map);
-
-      L.marker([data.lat, data.lng])
-        .addTo(map)
-        .bindPopup(`<b>${data.name}</b>`)
-        .openPopup();
-
-      if(data.attractions){
-        data.attractions.forEach(a => {
-          if(a.lat && a.lng){
-            L.marker([a.lat, a.lng])
-              .addTo(map)
-              .bindPopup(a.name);
-          }
-        });
-      }
-    }
-
-  });
-
-function changeSlide(direction){
-  if(!slides.length) return;
-
-  slides[currentSlide].classList.remove("active");
-  currentSlide = (currentSlide + direction + slides.length) % slides.length;
-  slides[currentSlide].classList.add("active");
-}
-
-function slideAttractions(direction) {
-  const slider = document.getElementById("attractionSlider");
-  slider.scrollBy({
-    left: direction * 350,
-    behavior: "smooth"
-  });
-}
-
-function goBack() {
-  window.history.back();
-}
-</script>
-
-</body>
-</html> -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -268,267 +13,249 @@ function goBack() {
     
   </style>
 </head>
-<body class="place-page">
-<div class="place-container">
+  <body class="place-page">
 
-  <button class="close-page" onclick="goBack()">✖</button>
+  <button class="close-page" onclick="goBack()">&#x2716;</button>
 
-  <!-- IMAGE GALLERY -->
-  <div class="gallery-container">
-    <button class="gallery-btn left" onclick="changeSlide(-1)">❮</button>
-    <div class="gallery-slider" id="gallerySlider"></div>
-    <button class="gallery-btn right" onclick="changeSlide(1)">❯</button>
+  <!-- GALLERY -->
+  <div class="gallery-container" id="galleryWrap">
+    <div class="gallery-hero-text">
+      <div class="sub" id="city-state"></div>
+      <h1 id="city-name">Loading...</h1>
+    </div>
+    <button class="gallery-btn left"  onclick="slide(-1)">&#10094;</button>
+    <button class="gallery-btn right" onclick="slide(1)">&#10095;</button>
+    <div class="gallery-dots" id="dots"></div>
   </div>
 
-  <!-- HERO INFO -->
-  <div class="info-section" style="padding:20px;">
-    <h1 id="city-name"></h1>
-    <p class="state" id="city-state"></p>
-    <div class="stats">
-      <div>💰 Avg Cost: <span id="city-price"></span></div>
-      <div>⭐ Rating: <span id="city-rating"></span></div>
-      <div>🏷 Type: <span id="city-type"></span></div>
-    </div>
-    <div class="quick-facts">
-      <div class="fact-item"><span class="fact-icon">🌤</span><span class="fact-label">Best Time</span><span class="fact-value" id="city-besttime">—</span></div>
-      <div class="fact-item"><span class="fact-icon">🌡</span><span class="fact-label">Weather</span><span class="fact-value" id="city-weather">—</span></div>
-      <div class="fact-item"><span class="fact-icon">🗣</span><span class="fact-label">Language</span><span class="fact-value" id="city-language">—</span></div>
-      <div class="fact-item"><span class="fact-icon">💵</span><span class="fact-label">Currency</span><span class="fact-value" id="city-currency">—</span></div>
-    </div>
+  <!-- STATS BAR -->
+  <div class="stats-bar">
+    <div class="stat"><div class="s-label">Avg Cost</div><div class="s-value" id="stat-price">&#8212;</div></div>
+    <div class="stat"><div class="s-label">Rating</div><div class="s-value" id="stat-rating">&#8212;</div></div>
+    <div class="stat"><div class="s-label">Type</div><div class="s-value" id="stat-type">&#8212;</div></div>
+    <div class="stat"><div class="s-label">Hotels</div><div class="s-value" id="stat-hotels">&#8212;</div></div>
   </div>
+
+  <!-- QUICK FACTS -->
+  <div class="quick-facts" id="quickFacts"></div>
 
   <!-- TABS -->
-  <div class="tabs">
-    <button class="tab-btn active" onclick="showTab('overview',this)">📖 Overview</button>
-    <button class="tab-btn" onclick="showTab('attractions',this)">✨ Attractions</button>
-    <button class="tab-btn" onclick="showTab('things',this)">🎯 Things To Do</button>
-    <button class="tab-btn" onclick="showTab('hotels',this)">🏨 Hotels</button>
-    <button class="tab-btn" onclick="showTab('nearby',this)">📍 Nearby</button>
-    <button class="tab-btn" onclick="showTab('map',this)">🗺 Map</button>
-    <button class="tab-btn" onclick="showTab('reviews',this)">💬 Reviews</button>
+  <div class="tabs-wrap">
+    <div class="tabs">
+      <div class="tab active" onclick="showTab('overview',this)">&#128214; Overview</div>
+      <div class="tab" onclick="showTab('attractions',this)">&#10024; Attractions</div>
+      <div class="tab" onclick="showTab('things',this)">&#127919; Things To Do</div>
+      <div class="tab" onclick="showTab('hotels',this)">&#127968; Hotels</div>
+      <div class="tab" onclick="showTab('nearby',this)">&#128205; Nearby</div>
+      <div class="tab" onclick="showTab('map',this)">&#128506; Map</div>
+      <div class="tab" onclick="showTab('reviews',this)">&#128172; Reviews</div>
+    </div>
   </div>
 
-  <!-- TAB: OVERVIEW -->
-  <div class="tab-panel active section-body" id="tab-overview">
-    <!-- <h2>About</h2>
-    <p id="city-description"></p> -->
+  <!-- PANELS -->
+  <div class="panel active" id="panel-overview">
+    <h2>About</h2>
+    <p id="city-description"></p>
     <h2>Information</h2>
     <p id="city-information"></p>
   </div>
 
-  <!-- TAB: ATTRACTIONS -->
-  <div class="tab-panel section-body" id="tab-attractions">
-    <!-- <h2>✨ Top Attractions</h2> -->
-    <div class="slider-wrapper">
-      <button class="slide-btn left" onclick="slideAttractions(-1)">❮</button>
-      <div class="attraction-slider" id="attractionSlider"></div>
-      <button class="slide-btn right" onclick="slideAttractions(1)">❯</button>
-    </div>
+  <div class="panel" id="panel-attractions">
+    <h2>&#10024; Top Attractions</h2>
+    <div class="attr-scroll" id="attractionSlider"></div>
   </div>
 
-  <!-- TAB: THINGS TO DO -->
-  <div class="tab-panel section-body" id="tab-things">
-    <h2>🎯 Things To Do</h2>
+  <div class="panel" id="panel-things">
+    <h2>&#127919; Things To Do</h2>
     <div class="things-grid" id="thingsGrid"></div>
   </div>
 
-  <!-- TAB: HOTELS -->
-  <div class="tab-panel section-body" id="tab-hotels">
-    <h2>🏨 Where to Stay</h2>
+  <div class="panel" id="panel-hotels">
+    <h2>&#127968; Where to Stay</h2>
     <div class="hotels-grid" id="hotelsGrid"></div>
   </div>
 
-  <!-- TAB: NEARBY PLACES -->
-  <div class="tab-panel section-body" id="tab-nearby">
-    <h2>📍 Nearby Places</h2>
+  <div class="panel" id="panel-nearby">
+    <h2>&#128205; Nearby Places</h2>
     <div class="nearby-slider" id="nearbySlider"></div>
   </div>
 
-  <!-- TAB: MAP -->
-  <div class="tab-panel section-body" id="tab-map">
-    <h2>🗺 Map</h2>
-    <div id="map" style="height:450px;border-radius:16px;"></div>
+  <div class="panel" id="panel-map">
+    <h2>&#128506; Map</h2>
+    <div id="map"></div>
     <div class="map-legend">
-      <span><span class="legend-dot" style="background:#1a73e8;"></span>City</span>
-      <span><span class="legend-dot" style="background:#e53935;"></span>Attractions</span>
-      <span><span class="legend-dot" style="background:#43a047;"></span>Hotels</span>
-      <span><span class="legend-dot" style="background:#fb8c00;"></span>Nearby</span>
+      <span><span class="ldot" style="background:#e8651a"></span>City</span>
+      <span><span class="ldot" style="background:#e53935"></span>Attractions</span>
+      <span><span class="ldot" style="background:#43a047"></span>Hotels</span>
+      <span><span class="ldot" style="background:#1a73e8"></span>Nearby</span>
     </div>
   </div>
 
-  <!-- TAB: REVIEWS -->
-  <div class="tab-panel section-body" id="tab-reviews">
-    <h2>💬 Traveller Reviews</h2>
+  <div class="panel" id="panel-reviews">
+    <h2>&#128172; Traveller Reviews</h2>
     <div class="reviews-list" id="reviewsList"></div>
   </div>
 
-</div>
-
 <script>
-const slug = window.location.pathname.split("/").pop();
-let currentSlide = 0, slides = [], mapInitialized = false;
+const slug = window.location.pathname.split('/').pop();
+let cur = 0, slides = [], mapReady = false;
 
-fetch(`/api/place/${slug}`)
-  .then(res => res.json())
-  .then(data => {
-    window._placeData = data;
+fetch('/api/place/' + slug)
+  .then(r => r.json())
+  .then(loadData)
+  .catch(() => loadData(DEMO));
 
-    // Basic info
-    setText("city-name", data.name);
-    setText("city-state", data.state);
-    setText("city-description", data.description);
-    setText("city-information", data.information);
-    setText("city-price", data.avgCostPerDay ? "₹" + data.avgCostPerDay + "/day" : "N/A");
-    setText("city-rating", data.rating || "N/A");
-    setText("city-type", data.type || "Tourist Place");
-    setText("city-besttime", data.bestTimeToVisit || "—");
-    setText("city-weather", data.weather || "—");
-    setText("city-language", data.language || "—");
-    setText("city-currency", data.currency || "—");
+// ── RENDER 
+function loadData(data) {
+  window._d = data;
 
-    // Gallery
-    const gallery = document.getElementById("gallerySlider");
-    gallery.innerHTML = "";
-    const images = (data.images && data.images.length) ? data.images : [data.mainImage];
-    images.forEach((img, i) => {
-      const div = document.createElement("div");
-      div.className = "gallery-slide" + (i === 0 ? " active" : "");
-      div.innerHTML = `<img src="${img}">`;
-      gallery.appendChild(div);
-    });
-    slides = document.querySelectorAll(".gallery-slide");
+  // Text
+  setT('city-name',        data.name || '');
+  setT('city-state',       data.state ? data.state + ', India' : '');
+  setT('city-description', data.description || '');
+  setT('city-information', data.information || '');
+  setT('stat-price',       data.avgCostPerDay ? '&#8377;' + data.avgCostPerDay + '/day' : 'N/A');
+  setT('stat-rating',      data.rating ? '&#11088; ' + data.rating : 'N/A');
+  setT('stat-type',        data.type || 'Tourist Place');
+  setT('stat-hotels',      data.hotels && data.hotels.length ? data.hotels.length + ' Listed' : '0');
 
-    // Attractions
-    const attrSlider = document.getElementById("attractionSlider");
-    attrSlider.innerHTML = "";
-    if (data.attractions && data.attractions.length) {
-      data.attractions.forEach(a => {
-        const card = document.createElement("div");
-        card.className = "attraction-card";
-        card.innerHTML = `<img src="${a.image||''}"><h4>${a.name}</h4><p>${a.description||""}</p>`;
-        attrSlider.appendChild(card);
-      });
-    } else attrSlider.innerHTML = emptyState("No attractions listed yet.");
-
-    // Things to do
-    const thingsGrid = document.getElementById("thingsGrid");
-    thingsGrid.innerHTML = "";
-    if (data.thingsToDo && data.thingsToDo.length) {
-      data.thingsToDo.forEach(t => {
-        const price = t.price === 0 ? "Free" : (t.price ? "₹" + t.price : "");
-        const card = document.createElement("div");
-        card.className = "thing-card";
-        card.innerHTML = `
-          ${t.image ? `<img src="${t.image}">` : ""}
-          <div class="thing-body">
-            <h4>${t.name}</h4><p>${t.description||""}</p>
-            <div class="thing-meta">
-              ${t.category ? `<span class="thing-tag tag-category">${t.category}</span>` : ""}
-              ${t.duration ? `<span class="thing-tag tag-duration">⏱ ${t.duration}</span>` : ""}
-              ${price ? `<span class="thing-tag tag-price">${price}</span>` : ""}
-            </div>
-          </div>`;
-        thingsGrid.appendChild(card);
-      });
-    } else thingsGrid.innerHTML = emptyState("No activities listed yet.");
-
-    // Hotels
-    const hotelsGrid = document.getElementById("hotelsGrid");
-    hotelsGrid.innerHTML = "";
-    if (data.hotels && data.hotels.length) {
-      data.hotels.forEach(h => {
-        const stars = h.stars ? "★".repeat(h.stars) + "☆".repeat(5 - h.stars) : "";
-        const card = document.createElement("div");
-        card.className = "hotel-card";
-        card.innerHTML = `
-          ${h.image ? `<img src="${h.image}">` : ""}
-          <div class="hotel-info">
-            <h4>${h.name}</h4>
-            <p style="font-size:13px;color:#666;">${h.description||""}</p>
-            <div class="hotel-meta">
-              <span class="hotel-stars">${stars}</span>
-              ${h.rating ? `<span class="hotel-rating">⭐ ${h.rating}</span>` : ""}
-            </div>
-            ${h.pricePerNight ? `<div class="hotel-price" style="margin-top:8px;">₹${h.pricePerNight} / night</div>` : ""}
-          </div>
-          ${h.link ? `<a href="${h.link}" target="_blank" class="book-btn">Book Now →</a>` : ""}`;
-        hotelsGrid.appendChild(card);
-      });
-    } else hotelsGrid.innerHTML = emptyState("No hotel listings yet.");
-
-    // Nearby
-    const nearbySlider = document.getElementById("nearbySlider");
-    nearbySlider.innerHTML = "";
-    if (data.nearbyPlaces && data.nearbyPlaces.length) {
-      data.nearbyPlaces.forEach(n => {
-        const card = document.createElement("a");
-        card.className = "nearby-card";
-        card.href = n.slug ? `/place/${n.slug}` : "#";
-        card.innerHTML = `
-          ${n.image ? `<img src="${n.image}">` : ""}
-          <div class="nearby-info">
-            <h4>${n.name}</h4>
-            ${n.distanceKm ? `<span class="dist-badge">📍 ${n.distanceKm} km away</span>` : ""}
-            <p style="font-size:12px;color:#888;margin:6px 0 0;">${n.description||""}</p>
-          </div>`;
-        nearbySlider.appendChild(card);
-      });
-    } else nearbySlider.innerHTML = emptyState("No nearby places listed yet.");
-
-    // Reviews
-    const reviewsList = document.getElementById("reviewsList");
-    reviewsList.innerHTML = "";
-    if (data.reviews && data.reviews.length) {
-      data.reviews.forEach(r => {
-        const stars = r.rating ? "★".repeat(r.rating) + "☆".repeat(5 - r.rating) : "";
-        const dateStr = r.date ? new Date(r.date).toLocaleDateString("en-IN",{year:"numeric",month:"short",day:"numeric"}) : "";
-        const card = document.createElement("div");
-        card.className = "review-card";
-        card.innerHTML = `
-          <div class="review-header">
-            <span class="review-author">${r.author||"Anonymous"}</span>
-            <span class="review-stars">${stars}</span>
-          </div>
-          <div class="review-date">${dateStr}</div>
-          <div class="review-comment">${r.comment||""}</div>`;
-        reviewsList.appendChild(card);
-      });
-    } else reviewsList.innerHTML = emptyState("No reviews yet. Be the first!");
+  // Quick facts
+  const qf = document.getElementById('quickFacts');
+  qf.innerHTML = '';
+  [ ['&#127780;','Best Time',   data.bestTimeToVisit],
+    ['&#127777;','Weather',     data.weather],
+    ['&#128483;','Language',    data.language],
+    ['&#128181;','Currency',    data.currency]
+  ].forEach(([ico, lbl, val]) => {
+    if (!val) return;
+    qf.innerHTML += '<div class="fact"><span class="icon">' + ico + '</span><div class="fl"><span>' + lbl + '</span><strong>' + val + '</strong></div></div>';
   });
 
-function initMap() {
-  const data = window._placeData;
-  if (!data || !data.lat || !data.lng) return;
-  const map = L.map("map").setView([data.lat, data.lng], 12);
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution:"© OpenStreetMap contributors" }).addTo(map);
+  // Gallery
+  const wrap = document.getElementById('galleryWrap');
+  wrap.querySelectorAll('.gallery-slide').forEach(s => s.remove());
+  const imgs = data.images && data.images.length ? data.images : [data.mainImage];
+  const hero = wrap.querySelector('.gallery-hero-text');
+  imgs.forEach((src, i) => {
+    const d = document.createElement('div');
+    d.className = 'gallery-slide' + (i === 0 ? ' active' : '');
+    d.innerHTML = '<img src="' + src + '" alt="' + (data.name||'') + '"><div class="gallery-overlay"></div>';
+    wrap.insertBefore(d, hero);
+  });
+  slides = wrap.querySelectorAll('.gallery-slide');
+  const dotsEl = document.getElementById('dots');
+  dotsEl.innerHTML = '';
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'gdot' + (i === 0 ? ' active' : '');
+    d.onclick = () => goTo(i);
+    dotsEl.appendChild(d);
+  });
 
-  const mkr = (color) => L.divIcon({ className:"", html:`<div style="background:${color};width:13px;height:13px;border-radius:50%;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.4);"></div>` });
+  // Attractions
+  const atEl = document.getElementById('attractionSlider');
+  atEl.innerHTML = '';
+  const atArr = data.attractions || [];
+  if (atArr.length) {
+    atArr.forEach(a => {
+      atEl.innerHTML += '<div class="attr-card">' + (a.image ? '<img src="' + a.image + '">' : '') + '<div class="ac-body"><h4>' + a.name + '</h4><p>' + (a.description||'') + '</p></div></div>';
+    });
+  } else atEl.innerHTML = empt('No attractions listed yet.');
 
-  L.marker([data.lat, data.lng], { icon: mkr("#1a73e8") }).addTo(map).bindPopup(`<b>${data.name}</b>`).openPopup();
+  // Things
+  const thEl = document.getElementById('thingsGrid');
+  thEl.innerHTML = '';
+  const thArr = data.thingsToDo || [];
+  if (thArr.length) {
+    thArr.forEach(t => {
+      const pt = t.price === 0 ? '<span class="tag tag-free">Free</span>' : (t.price ? '<span class="tag tag-price">&#8377;' + t.price + '</span>' : '');
+      thEl.innerHTML += '<div class="thing-card">' + (t.image ? '<img src="' + t.image + '">' : '') +
+        '<div class="thing-body"><h4>' + t.name + '</h4><p>' + (t.description||'') + '</p>' +
+        '<div class="tags">' + (t.category ? '<span class="tag tag-cat">' + t.category + '</span>' : '') +
+        (t.duration ? '<span class="tag tag-dur">&#9200; ' + t.duration + '</span>' : '') + pt + '</div></div></div>';
+    });
+  } else thEl.innerHTML = empt('No activities listed yet.');
 
-  (data.attractions||[]).forEach(a => a.lat && a.lng && L.marker([a.lat,a.lng],{icon:mkr("#e53935")}).addTo(map).bindPopup(`<b>${a.name}</b><br>${a.description||""}`));
-  (data.hotels||[]).forEach(h => h.lat && h.lng && L.marker([h.lat,h.lng],{icon:mkr("#43a047")}).addTo(map).bindPopup(`<b>🏨 ${h.name}</b>${h.pricePerNight?"<br>₹"+h.pricePerNight+"/night":""}`));
-  (data.nearbyPlaces||[]).forEach(n => n.lat && n.lng && L.marker([n.lat,n.lng],{icon:mkr("#fb8c00")}).addTo(map).bindPopup(`<b>${n.name}</b>${n.distanceKm?"<br>"+n.distanceKm+" km away":""}`));
+  // Hotels
+  const htEl = document.getElementById('hotelsGrid');
+  htEl.innerHTML = '';
+  const htArr = data.hotels || [];
+  if (htArr.length) {
+    htArr.forEach(h => {
+      const st = h.stars ? '&#9733;'.repeat(h.stars) + '&#9734;'.repeat(5 - h.stars) : '';
+      htEl.innerHTML += '<div class="hotel-card">' + (h.image ? '<img src="' + h.image + '">' : '') +
+        '<div class="hotel-info"><h4>' + h.name + '</h4><div class="hdesc">' + (h.description||'') + '</div>' +
+        '<div class="hotel-meta"><span class="hotel-stars">' + st + '</span>' + (h.rating ? '<span class="hotel-badge">&#11088; ' + h.rating + '</span>' : '') + '</div>' +
+        (h.pricePerNight ? '<div class="hotel-price">&#8377;' + h.pricePerNight + ' / night</div>' : '') + '</div>' +
+        (h.link ? '<a href="' + h.link + '" target="_blank" class="book-btn">Book Now &#8594;</a>' : '') + '</div>';
+    });
+  } else htEl.innerHTML = empt('No hotel listings yet.');
+
+  // Nearby
+  const nbEl = document.getElementById('nearbySlider');
+  nbEl.innerHTML = '';
+  const nbArr = data.nearbyPlaces || [];
+  if (nbArr.length) {
+    nbArr.forEach(n => {
+      nbEl.innerHTML += '<a class="nearby-card" href="' + (n.slug ? '/place/' + n.slug : '#') + '">' +
+        (n.image ? '<img src="' + n.image + '">' : '') +
+        '<div class="nearby-info"><h4>' + n.name + '</h4>' +
+        (n.distanceKm ? '<span class="dist">&#128205; ' + n.distanceKm + ' km</span>' : '') +
+        '<p>' + (n.description||'') + '</p></div></a>';
+    });
+  } else nbEl.innerHTML = empt('No nearby places listed yet.');
+
+  // Reviews
+  const rvEl = document.getElementById('reviewsList');
+  rvEl.innerHTML = '';
+  const rvArr = data.reviews || [];
+  if (rvArr.length) {
+    rvArr.forEach(r => {
+      const st = r.rating ? '&#9733;'.repeat(r.rating) + '&#9734;'.repeat(5 - r.rating) : '';
+      const dt = r.date ? new Date(r.date).toLocaleDateString('en-IN', {year:'numeric',month:'long',day:'numeric'}) : '';
+      rvEl.innerHTML += '<div class="review-card"><div class="rh"><span class="rauthor">' + (r.author||'Anonymous') + '</span><span class="rstars">' + st + '</span></div><div class="rdate">' + dt + '</div><div class="rcomment">' + (r.comment||'') + '</div></div>';
+    });
+  } else rvEl.innerHTML = empt('No reviews yet. Be the first!');
 }
 
-function showTab(name, btn) {
-  document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
-  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-  document.getElementById("tab-" + name).classList.add("active");
-  btn.classList.add("active");
-  if (name === "map" && !mapInitialized) { initMap(); mapInitialized = true; }
-}
-
-function changeSlide(dir) {
+// ── GALLERY ──
+function goTo(n) {
   if (!slides.length) return;
-  slides[currentSlide].classList.remove("active");
-  currentSlide = (currentSlide + dir + slides.length) % slides.length;
-  slides[currentSlide].classList.add("active");
+  slides[cur].classList.remove('active');
+  document.querySelectorAll('.gdot')[cur] && document.querySelectorAll('.gdot')[cur].classList.remove('active');
+  cur = (n + slides.length) % slides.length;
+  slides[cur].classList.add('active');
+  document.querySelectorAll('.gdot')[cur] && document.querySelectorAll('.gdot')[cur].classList.add('active');
 }
-function slideAttractions(dir) { document.getElementById("attractionSlider").scrollBy({left:dir*350,behavior:"smooth"}); }
+function slide(d) { goTo(cur + d); }
+setInterval(() => slide(1), 4500);
+
+// ── TABS ──
+function showTab(name, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  el.classList.add('active');
+  if (name === 'map' && !mapReady) { initMap(); mapReady = true; }
+}
+
+// ── MAP ──
+function initMap() {
+  const d = window._d;
+  if (!d || !d.lat || !d.lng) return;
+  const map = L.map('map').setView([d.lat, d.lng], 12);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap' }).addTo(map);
+  const mk = (c, s) => L.divIcon({ className: '', html: '<div style="background:' + c + ';width:' + s + 'px;height:' + s + 'px;border-radius:50%;border:2.5px solid white;box-shadow:0 2px 8px rgba(0,0,0,.4)"></div>' });
+  L.marker([d.lat, d.lng], { icon: mk('#e8651a', 16) }).addTo(map).bindPopup('<b>' + d.name + '</b>').openPopup();
+  (d.attractions||[]).forEach(a => a.lat && a.lng && L.marker([a.lat,a.lng],{icon:mk('#e53935',13)}).addTo(map).bindPopup('<b>'+a.name+'</b>'));
+  (d.hotels||[]).forEach(h => h.lat && h.lng && L.marker([h.lat,h.lng],{icon:mk('#43a047',13)}).addTo(map).bindPopup('<b>'+h.name+'</b>'));
+  (d.nearbyPlaces||[]).forEach(n => n.lat && n.lng && L.marker([n.lat,n.lng],{icon:mk('#1a73e8',13)}).addTo(map).bindPopup('<b>'+n.name+'</b>'));
+}
+
+// ── HELPERS ──
+function setT(id, val) { const e = document.getElementById(id); if (e) e.innerHTML = val || ''; }
+function empt(msg) { return '<div class="empty-state">' + msg + '</div>'; }
 function goBack() { window.history.back(); }
-function setText(id, val) { const el = document.getElementById(id); if (el && val != null) el.innerText = val; }
-function emptyState(msg) { return `<div class="empty-state">${msg}</div>`; }
 </script>
 </body>
 </html>

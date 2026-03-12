@@ -19,7 +19,7 @@
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════════════════════ NAVBAR ══════ -->
+<!--  NAVBAR ═ -->
 <nav id="navbar">
   <div class="container">
     <div class="nav-inner">
@@ -30,7 +30,7 @@
       <div class="nav-links">
         <button class="nav-link active" onclick="scrollToSection('hero',this)">Home</button>
         <button class="nav-link" onclick="scrollToSection('destinations',this)">Explore</button>
-        <!-- FIX #2 & #10: openBooking correctly defined; mobile links call closeMobile() -->
+        
         <button class="nav-link" onclick="openhotelBooking()">Hotels</button>
         <button class="nav-link" onclick="openrestaurantBooking()">Restaurants</button>
         <button class="nav-link" onclick="openrentalBooking()">Rentals</button>
@@ -38,8 +38,34 @@
       </div>
       <div class="nav-actions flex items-center gap-2">
         <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">🌙</button>
-        <button class="btn btn-ghost btn-sm" onclick="openAuthModal('login')">Login</button>
-        <button class="btn btn-primary btn-sm" onclick="openAuthModal('signup')">Sign Up Free</button>
+        
+        <!-- guest: shown when logged out -->
+        <div id="nav-guest">
+          <button class="btn btn-ghost btn-sm" onclick="openAuthModal('login')">Login</button>
+          <button class="btn btn-primary btn-sm" onclick="openAuthModal('signup')">Sign Up Free</button>
+        </div>
+        <!-- profile icon: shown when logged in -->
+        <div id="nav-user" style="display:none;position:relative">
+          <button class="profile-pill" onclick="toggleProfileMenu(event)">
+            <div class="pp-avatar" id="nav-avatar-initials">U</div>
+            <span class="pp-name" id="nav-user-name"></span>
+            <span class="pp-caret">&#9660;</span>
+          </button>
+          <div class="profile-dropdown" id="profile-dropdown">
+            <div class="pd-header">
+              <div class="pd-avatar" id="dropdown-avatar">U</div>
+              <div class="pd-info">
+                <div class="pd-name"  id="dropdown-name"></div>
+                <div class="pd-email" id="dropdown-email"></div>
+              </div>
+            </div>
+            <div class="pd-divider"></div>
+            <button class="pd-item" onclick="openEditProfile()">&#9998; &nbsp;Edit Profile</button>
+            <button class="pd-item" onclick="location.href='/dashboard'">&#128202; &nbsp;Dashboard</button>
+            <div class="pd-divider"></div>
+            <button class="pd-item pd-danger" onclick="location.href='/logout'">&#128682; &nbsp;Logout</button>
+          </div>
+        </div>
         <button class="hamburger" id="hamburger" onclick="toggleMobile()">
           <span></span><span></span><span></span>
         </button>
@@ -47,12 +73,38 @@
     </div>
   </div>
 </nav>
+<div class="epm-overlay" id="editProfileModal">
+  <div class="epm-box">
+    <button class="epm-close" onclick="closeEditProfile()">&#x2715;</button>
+    <div class="epm-head">
+      <div class="epm-big-av" id="epm-avatar">U</div>
+      <h3 class="epm-title">Edit Profile</h3>
+      <p class="epm-sub">Update your account details</p>
+    </div>
+    <div class="epm-field">
+      <label class="epm-label">Full Name</label>
+      <input class="epm-input" id="epm-name" type="text" placeholder="Your full name">
+    </div>
+    <div class="epm-field">
+      <label class="epm-label">Email Address</label>
+      <input class="epm-input" id="epm-email" type="email" placeholder="you@example.com">
+    </div>
+    <div class="epm-field">
+      <label class="epm-label">New Password <span class="epm-hint">(leave blank to keep current)</span></label>
+      <input class="epm-input" id="epm-password" type="password" placeholder="Min. 8 characters">
+    </div>
+    <div class="epm-msg" id="epm-msg"></div>
+    <button class="epm-save" onclick="saveProfile()">Save Changes</button>
+  </div>
+</div>
+
+
 
 <!-- Mobile Menu -->
 <div class="mobile-menu" id="mobile-menu">
   <button class="mobile-nav-link" onclick="scrollToSection('hero'); closeMobile()">🏠 Home</button>
   <button class="mobile-nav-link" onclick="scrollToSection('destinations'); closeMobile()">🗺️ Explore</button>
-  <!-- FIX #10: all mobile nav links that redirect now also call closeMobile() -->
+ 
   <button class="mobile-nav-link" onclick="openBooking(); closeMobile()">🏨 Hotels</button>
   <button class="mobile-nav-link" onclick="openrestaurantBooking(); closeMobile()">🍽️ Restaurants</button>
   <button class="mobile-nav-link" onclick="openrentalBooking(); closeMobile()">🏍️ Rentals</button>
@@ -64,10 +116,7 @@
 </div>
 
 <script>
-/* ─────────────────────────────────────────────────────────────────────────────
-   EXTERNAL BOOKING REDIRECTS
-   FIX #2: Added missing openrestaurantBooking() function
-───────────────────────────────────────────────────────────────────────────── */
+
 function _externalRedirect(url) {
   if (confirm("You are being redirected to an external website. BudgetTrip.AI is not responsible for the external site's terms of use and privacy policy.\n\nContinue?")) {
     window.open(url, "_blank");
@@ -78,19 +127,19 @@ function opentrainBooking()       { _externalRedirect("https://www.irctc.co.in/n
 function openrentalBooking()      { _externalRedirect("https://www.royalbrothers.com"); }
 function openbusBooking()         { _externalRedirect("https://www.redbus.in"); }
 function openhotelBooking()       { _externalRedirect("https://www.booking.com"); }
-// FIX #2: This was completely missing — caused a JS ReferenceError on click
+
 function openrestaurantBooking()  { _externalRedirect("https://www.zomato.com"); }
 </script>
 
-<!-- ═══════════════════════════════════════════════════════════ HERO ════════ -->
-<section id="hero">
-  <div class="hero-bg"></div>
+<!--  HERO -->
+<!-- <section id="hero"> -->
+  <!-- <div class="hero-bg"></div>
   <div class="hero-grid"></div>
   <div class="orb orb1"></div>
   <div class="orb orb2"></div>
-  <div class="orb orb3"></div>
+  <div class="orb orb3"></div> -->
 
-  <div class="container hero-container" style="position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;padding:80px 24px">
+  <!-- <div class="container hero-container" style="position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;padding:80px 24px">
     <div class="hero-content">
       <div class="badge animate-fade-up">
         <span class="dot"></span>
@@ -113,11 +162,110 @@ function openrestaurantBooking()  { _externalRedirect("https://www.zomato.com");
         <div><div class="hero-stat-value grad-text">₹2K</div><div class="hero-stat-label">Avg Savings</div></div>
         <div><div class="hero-stat-value grad-text">4.9★</div><div class="hero-stat-label">Avg Rating</div></div>
       </div>
-    </div>
-    <div class="hero-float-area" style="height:460px;position:relative;display:none" id="hero-right">
-      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none">
+    </div> -->
+    <div class="hero-float-area"id="hero-right"> 
+      <!-- <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none">
         <div style="font-size:220px;opacity:0.06;user-select:none;animation:float 8s ease-in-out infinite">✈️</div>
       </div>
+    </div> -->
+    </div>
+<!-- </section> -->
+
+<!-- ═══ HERO ═══ -->
+<section id="hero">
+  <!-- Background layers -->
+  <div class="hero-scene"></div>
+  <div class="hero-noise"></div>
+  <div class="orb orb-a"></div>
+  <div class="orb orb-b"></div>
+  <div class="orb orb-c"></div>
+
+  <!-- LEFT: Content -->
+  <div class="hero-left">
+    <div class="hero-eyebrow">
+      <div class="eyebrow-icon">🤖</div>
+      <span>AI-Powered Travel Platform</span>
+      <div class="eyebrow-pulse"></div>
+    </div>
+
+    <h1 class="hero-heading">
+      Discover <em>India</em><br>
+      <span class="line2">Within Your Budget</span>
+    </h1>
+
+    <p class="hero-desc">
+      Find tourist places, hotels, restaurants & rentals — all in one smart platform. AI-curated experiences from ₹500/day to luxury escapes.
+    </p>
+
+    <div class="hero-ctas">
+      <button class="cta-primary"onclick="scrollToSection('destinations')">
+        🚀 Explore Now
+      </button>
+      <button class="cta-secondary"onclick="scrollToSection('ai-section')">
+        🤖 Plan with AI
+      </button>
+    </div>
+
+    <div class="hero-stats">
+      <div>
+        <div class="stat-val">2.4<span>K+</span></div>
+        <div class="stat-label">Destinations</div>
+      </div>
+      <div>
+        <div class="stat-val">₹<span>500</span></div>
+        <div class="stat-label">Starting/day</div>
+      </div>
+      <div>
+        <div class="stat-val">98<span>%</span></div>
+        <div class="stat-label">Happy Travelers</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Floating card stack -->
+  <div class="hero-right">
+    <div class="card-stack">
+      <!-- Card 1 (back) -->
+      <div class="dest-card card-1">
+        <img src="https://images.unsplash.com/photo-1477587458883-47145ed94245?w=600&q=80" alt="Goa">
+        <div class="dest-card-body">
+          <div class="dest-card-city">Goa</div>
+          <div class="dest-card-meta"><span>⭐ 4.8</span><span>₹3,500/day</span></div>
+          <div class="dest-tag">🏖️ Beach</div>
+        </div>
+      </div>
+
+      <!-- Card 2 (middle) -->
+      <div class="dest-card card-2">
+        <img src="https://images.unsplash.com/photo-1599661046289-e31897846e41?w=600&q=80" alt="Jaipur">
+        <div class="dest-card-body">
+          <div class="dest-card-city">Jaipur</div>
+          <div class="dest-card-meta"><span>⭐ 4.9</span><span>₹2,800/day</span></div>
+          <div class="dest-tag">🏰 Heritage</div>
+        </div>
+      </div>
+
+      <!-- Card 3 (front / featured) -->
+      <div class="dest-card card-3">
+        <img src="https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=600&q=80" alt="Kerala">
+        <div class="dest-card-body">
+          <div class="dest-card-city">Kerala</div>
+          <div class="dest-card-meta"><span>⭐ 4.9</span><span>₹5,500/day</span></div>
+          <div class="dest-tag">🌿 Nature</div>
+        </div>
+      </div>
+
+      <!-- AI chip -->
+      <div class="ai-chip">
+        <div class="ai-chip-icon">✨</div>
+        <div>
+          <div class="ai-chip-label">AI Best Match</div>
+          <div class="ai-chip-value">Kerala — 98% fit</div>
+        </div>
+      </div>
+
+      <!-- Budget badge -->
+      <div class="budget-badge">₹5,500 / day</div>
     </div>
   </div>
 </section>
@@ -234,7 +382,7 @@ function openrestaurantBooking()  { _externalRedirect("https://www.zomato.com");
           ✨ Generate Recommendations
         </button>
       </div>
-      <!-- FIX #5: Moved ai-thinking OUTSIDE of ai-cards so it's never wiped by innerHTML = "" -->
+     
       <div class="ai-thinking" id="ai-thinking" style="display:none">
         <div class="spinner"></div>
         <span>AI is analyzing your preferences<span class="loading-dots"></span></span>
@@ -400,7 +548,7 @@ function openrestaurantBooking()  { _externalRedirect("https://www.zomato.com");
         <a href="#" class="footer-link">Cookie Policy</a>
         <a href="#" class="footer-link">API Docs</a>
         <div style="margin-top:16px;font-size:13px;color:var(--text2)">
-          📧 Travel@BudgetTrip.ai<br/>
+          📧 <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="7e2a0c1f081b123e3c0b1a191b0a2a0c170e501f17">[email&#160;protected]</a><br/>
           📞 +91 9699218242
         </div>
       </div>
@@ -412,12 +560,12 @@ function openrestaurantBooking()  { _externalRedirect("https://www.zomato.com");
   </div>
 </footer>
 
-<!-- ════════════════════════ AUTH MODAL (login/signup) ═══════════════════════ -->
+<!--  AUTH MODAL (login/signup)  -->
 <div class="modal-overlay" id="auth-modal" onclick="closeAuthModalOuter(event)">
   <div class="modal">
     <div class="modal-head">
       <h3 id="modal-title">Welcome Back</h3>
-      <!-- FIX #1 & #3: renamed to closeAuthModal() so it doesn't conflict with closePlaceModal() -->
+    
       <button class="modal-close" onclick="closeAuthModal()">✕</button>
     </div>
     <div class="modal-tabs">
@@ -465,16 +613,19 @@ function openrestaurantBooking()  { _externalRedirect("https://www.zomato.com");
   </div>
 </div>
 
-<!-- ══════════════════════════ PLACE DETAIL MODAL ═══════════════════════════ -->
-<!-- FIX #1 & #3: Separate modal with its own open/close functions -->
-<!-- <div id="place-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center;padding:20px" onclick="closePlaceModalOuter(event)">
-  <div id="place-modal-inner" style="background:var(--bg1,#0d0d0d);border-radius:16px;max-width:600px;width:100%;max-height:85vh;overflow-y:auto;padding:28px;position:relative">
-    <button onclick="closePlaceModal()" style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--text1)">&times;</button>
-    <div id="place-modal-body"></div>
-  </div>
-</div>
 
-<div id="toast-container"></div> -->
+
+
+
+
+
+
+
+
+
+
+<!-- ═ PLACE DETAIL MODAL -->
+
 
 <!-- FULLSCREEN PLACE PAGE -->
 <div id="place-modal" 
@@ -495,43 +646,50 @@ function openrestaurantBooking()  { _externalRedirect("https://www.zomato.com");
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════ JAVASCRIPT ═══════════ -->
-<script>
-/* ── Data ──────────────────────────────────────────────────────────────────── */
-// const DESTINATIONS = [
-//   { id:1, city:"Goa", tag:"🏖️ Beach", desc:"Sun-kissed beaches, vibrant nightlife & Portuguese colonial charm awaiting your arrival.", price:"₹3,500", budget:"medium", rating:4.8, reviews:2840, emoji:"🏖️", bg:"linear-gradient(135deg,#0f4c75,#1b6ca8,#00b4d8)", chips:["Beaches","Nightlife","Water Sports"] },
-//   { id:2, city:"Jaipur", tag:"🏰 Heritage", desc:"The Pink City — majestic royal forts, opulent palaces & vibrant traditional bazaars.", price:"₹2,800", budget:"low", rating:4.9, reviews:3210, emoji:"🏰", bg:"linear-gradient(135deg,#7b2d8b,#c0392b,#e67e22)", chips:["Forts","Culture","Shopping"] },
-//   { id:3, city:"Manali", tag:"⛰️ Adventure", desc:"Snow-capped Himalayan peaks, thrilling adventure sports & breathtaking lush green valleys.", price:"₹4,200", budget:"medium", rating:4.7, reviews:1980, emoji:"⛰️", bg:"linear-gradient(135deg,#1a3a4a,#2ecc71,#27ae60)", chips:["Trekking","Snow","Adventure"] },
-//   { id:4, city:"Kerala", tag:"🌿 Nature", desc:"Serene backwaters, aromatic spice gardens & world-renowned Ayurvedic wellness retreats.", price:"₹5,500", budget:"luxury", rating:4.9, reviews:4100, emoji:"🌿", bg:"linear-gradient(135deg,#134e5e,#71b280,#52c234)", chips:["Backwaters","Ayurveda","Nature"] },
-//   { id:5, city:"Varanasi", tag:"🕌 Spiritual", desc:"Ancient ghats, sacred Ganga Aarti ceremonies & a profound spiritual awakening by the river.", price:"₹1,800", budget:"low", rating:4.8, reviews:2650, emoji:"🕌", bg:"linear-gradient(135deg,#8b4513,#d4941a,#f5a623)", chips:["Ghats","Aarti","Temple"] },
-//   { id:6, city:"Mumbai", tag:"🌆 Urban", desc:"City of dreams — Bollywood glamour, legendary street food & the iconic Arabian Sea breeze.", price:"₹6,000", budget:"luxury", rating:4.6, reviews:5200, emoji:"🌆", bg:"linear-gradient(135deg,#2c3e50,#4a569d,#6a85b6)", chips:["Bollywood","Food","Marine Drive"] },
-// ];
 
-const AI_RECS = {
-  low: [
-    { city:"Varanasi", budget:"₹1,500/day", match:"98%", why:"Best spiritual experience on a shoestring. Guesthouses from ₹400/night, local thalis for ₹80." },
-    { city:"Rishikesh", budget:"₹1,200/day", match:"96%", why:"Yoga, rafting & adventure without breaking the bank. Ashrams offer board+lodging for ₹600." },
-    { city:"Hampi", budget:"₹1,000/day", match:"94%", why:"UNESCO heritage site with cycle rentals at ₹80/day and endless ruins to explore." },
-  ],
-  medium: [
-    { city:"Goa", budget:"₹3,500/day", match:"97%", why:"Best beach-to-budget ratio. Mid-range guesthouses ₹1,500/night, fresh seafood ₹300/meal." },
-    { city:"Manali", budget:"₹4,000/day", match:"95%", why:"Mountain thrills at moderate cost. Adventure packages, cozy cafes & scenic drives." },
-    { city:"Coorg", budget:"₹3,200/day", match:"92%", why:"Coffee estates, waterfalls & misty hills. Homestays give you authentic Karnataka culture." },
-  ],
-  luxury: [
-    { city:"Kerala", budget:"₹8,500/day", match:"99%", why:"Premium houseboat stays, 5-star Ayurvedic spas & curated backwater cruises." },
-    { city:"Udaipur", budget:"₹12,000/day", match:"97%", why:"Royal heritage hotels on the lake, private palace dinners & world-class hospitality." },
-    { city:"Andaman Islands", budget:"₹9,000/day", match:"95%", why:"Crystal-clear waters, secluded beaches & luxury eco-resorts. India's hidden paradise." },
-  ],
-};
 
-/* ── State ─────────────────────────────────────────────────────────────────── */
+
+
+
+
+
+<!--  JAVASCRIPT ══ -->
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+/* ── Data ── */
+const DESTINATIONSdata = [
+  { id:1, city:"Goa", tag:"🏖️ Beach", desc:"Sun-kissed beaches, vibrant nightlife & Portuguese colonial charm awaiting your arrival.", price:"₹3,500", budget:"medium", rating:4.8, reviews:2840, emoji:"🏖️", bg:"linear-gradient(135deg,#0f4c75,#1b6ca8,#00b4d8)", chips:["Beaches","Nightlife","Water Sports"] },
+  { id:2, city:"Jaipur", tag:"🏰 Heritage", desc:"The Pink City — majestic royal forts, opulent palaces & vibrant traditional bazaars.", price:"₹2,800", budget:"low", rating:4.9, reviews:3210, emoji:"🏰", bg:"linear-gradient(135deg,#7b2d8b,#c0392b,#e67e22)", chips:["Forts","Culture","Shopping"] },
+  { id:3, city:"Manali", tag:"⛰️ Adventure", desc:"Snow-capped Himalayan peaks, thrilling adventure sports & breathtaking lush green valleys.", price:"₹4,200", budget:"medium", rating:4.7, reviews:1980, emoji:"⛰️", bg:"linear-gradient(135deg,#1a3a4a,#2ecc71,#27ae60)", chips:["Trekking","Snow","Adventure"] },
+  { id:4, city:"Kerala", tag:"🌿 Nature", desc:"Serene backwaters, aromatic spice gardens & world-renowned Ayurvedic wellness retreats.", price:"₹5,500", budget:"luxury", rating:4.9, reviews:4100, emoji:"🌿", bg:"linear-gradient(135deg,#134e5e,#71b280,#52c234)", chips:["Backwaters","Ayurveda","Nature"] },
+  { id:5, city:"Varanasi", tag:"🕌 Spiritual", desc:"Ancient ghats, sacred Ganga Aarti ceremonies & a profound spiritual awakening by the river.", price:"₹1,800", budget:"low", rating:4.8, reviews:2650, emoji:"🕌", bg:"linear-gradient(135deg,#8b4513,#d4941a,#f5a623)", chips:["Ghats","Aarti","Temple"] },
+  { id:6, city:"Mumbai", tag:"🌆 Urban", desc:"City of dreams — Bollywood glamour, legendary street food & the iconic Arabian Sea breeze.", price:"₹6,000", budget:"luxury", rating:4.6, reviews:5200, emoji:"🌆", bg:"linear-gradient(135deg,#2c3e50,#4a569d,#6a85b6)", chips:["Bollywood","Food","Marine Drive"] },
+];
+
+// const AI_RECS = {
+//   low: [
+//     { city:"Varanasi", budget:"₹1,500/day", match:"98%", why:"Best spiritual experience on a shoestring. Guesthouses from ₹400/night, local thalis for ₹80." },
+//     { city:"Rishikesh", budget:"₹1,200/day", match:"96%", why:"Yoga, rafting & adventure without breaking the bank. Ashrams offer board+lodging for ₹600." },
+//     { city:"Hampi", budget:"₹1,000/day", match:"94%", why:"UNESCO heritage site with cycle rentals at ₹80/day and endless ruins to explore." },
+//   ],
+//   medium: [
+//     { city:"Goa", budget:"₹3,500/day", match:"97%", why:"Best beach-to-budget ratio. Mid-range guesthouses ₹1,500/night, fresh seafood ₹300/meal." },
+//     { city:"Manali", budget:"₹4,000/day", match:"95%", why:"Mountain thrills at moderate cost. Adventure packages, cozy cafes & scenic drives." },
+//     { city:"Coorg", budget:"₹3,200/day", match:"92%", why:"Coffee estates, waterfalls & misty hills. Homestays give you authentic Karnataka culture." },
+//   ],
+//   luxury: [
+//     { city:"Kerala", budget:"₹8,500/day", match:"99%", why:"Premium houseboat stays, 5-star Ayurvedic spas & curated backwater cruises." },
+//     { city:"Udaipur", budget:"₹12,000/day", match:"97%", why:"Royal heritage hotels on the lake, private palace dinners & world-class hospitality." },
+//     { city:"Andaman Islands", budget:"₹9,000/day", match:"95%", why:"Crystal-clear waters, secluded beaches & luxury eco-resorts. India's hidden paradise." },
+//   ],
+// };
+
+/* ── State ─ */
 let selectedBudget = 'medium';
 let aiBudget = 'medium';
 let annualBilling = false;
 let wishlist = new Set();
 
-/* ── Init ──────────────────────────────────────────────────────────────────── */
+/* ── Init ─*/
 document.addEventListener('DOMContentLoaded', () => {
   const navbar = document.getElementById('navbar');
   window.addEventListener('scroll', () => {
@@ -558,27 +716,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'Enter') doSearch();
   });
 
-  // FIX #8: Wrapped fetch("/user") with proper error handling
+  // ── Auth check: populate profile icon if logged in ──
   fetch("/user")
-    .then(res => {
-      if (!res.ok) throw new Error("Not authenticated");
-      return res.json();
-    })
-    .then(data => {
-      if (data.loggedIn) {
-        document.querySelector(".nav-actions").innerHTML = `
-          <span style="margin-right:10px">👋 ${data.user.name}</span>
-          <a href="/dashboard" class="btn btn-outline btn-sm">Dashboard</a>
-          <a href="/logout" class="btn btn-primary btn-sm">Logout</a>
-        `;
-      }
-    })
-    .catch(() => {
-      // Not logged in or server unreachable — fail silently
-    });
+    .then(r => { if (!r.ok) throw 0; return r.json(); })
+    .then(d => { if (d.loggedIn) _showProfile(d.user); })
+    .catch(() => {});
 });
 
-/* ── Theme ─────────────────────────────────────────────────────────────────── */
+/* ── Theme ─*/
 function toggleTheme() {
   const html = document.documentElement;
   const isDark = html.getAttribute('data-theme') === 'dark';
@@ -587,7 +732,7 @@ function toggleTheme() {
   showToast(`Switched to ${isDark ? 'light' : 'dark'} mode`, 'info');
 }
 
-/* ── Navbar ────────────────────────────────────────────────────────────────── */
+/* ── Navbar ─ */
 function scrollToSection(id, el) {
   document.getElementById(id)?.scrollIntoView({ behavior:'smooth', block:'start' });
   if (el) {
@@ -607,47 +752,15 @@ function closeMobile() {
   document.getElementById('mobile-menu').classList.remove('open');
 }
 
-/* ── Destinations ──────────────────────────────────────────────────────────── */
+/* ── Destinations ─ */
 function renderDestinations(data) {
-  const grid = document.getElementById('main-dest-grid');
-  const dests = data || DESTINATIONS;
+   const grid = document.getElementById('main-dest-grid');
+  const dests = data || DESTINATIONS1;
   grid.innerHTML = dests.map(d => destCardHTML(d)).join('');
   reobserveCards();
-}
+}  
 
-// function destCardHTML(d) {
-//   const isWished = wishlist.has(d.id);
-//   const stars = '★'.repeat(Math.floor(d.rating)) + (d.rating % 1 >= 0.5 ? '½' : '');
-//   return `
-//     <div class="dest-card reveal-scale" onclick="viewDest('${d.city}')">
-//       <div class="dest-img" style="background:${d.bg}">
-//         <span class="emoji-bg">${d.emoji}</span>
-//         <span class="emoji-fg">${d.emoji}</span>
-//         <div class="dest-tag">${d.tag}</div>
-//         <button class="wishlist-btn ${isWished ? 'active' : ''}" onclick="toggleWishlist(event,${d.id})" title="Add to wishlist">
-//           ${isWished ? '❤️' : '🤍'}
-//         </button>
-//       </div>
-//       <div class="dest-body">
-//         <div class="dest-header">
-//           <div class="dest-city">${d.city}</div>
-//           <div style="text-align:right">
-//             <div class="dest-price">${d.price}</div>
-//             <div class="dest-price-label">per day</div>
-//           </div>
-//         </div>
-//         <div class="dest-desc">${d.desc}</div>
-//         <div class="dest-meta">
-//           ${d.chips.map(c => `<span class="dest-chip">${c}</span>`).join('')}
-//         </div>
-//         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-//           <div style="font-size:13px;color:#f5a623">${stars} <span style="color:var(--text3)">(${d.reviews.toLocaleString()})</span></div>
-//           <div style="font-size:11px;color:var(--emerald);font-weight:700;background:rgba(16,217,138,0.1);border:1px solid rgba(16,217,138,0.2);padding:3px 8px;border-radius:6px">✅ Verified</div>
-//        <button class="btn btn-outline" style="width:100%;font-size:13px" onclick="event.stopPropagation(); viewDest('${d.city}')">
-//         View Details →
-//       </button>
-//     </div>`;
-// }
+
 function destCardHTML(d) {
   const isWished = wishlist.has(d.id);
   const stars = '★'.repeat(Math.floor(d.rating)) + 
@@ -728,7 +841,7 @@ function viewDest(cityName) {
   fetchPlace(slug);
 }
 
-/* ── Search ────────────────────────────────────────────────────────────────── */
+/* ── Search ─ */
 function selectBudget(el, bud) {
   selectedBudget = bud;
   document.querySelectorAll('.budget-tab').forEach(t => t.classList.remove('active'));
@@ -781,7 +894,7 @@ function doSearch() {
 
 
 
-/* ── AI Recommendations ────────────────────────────────────────────────────── */
+/* ── AI Recommendations */
 function runAI(el, bud) {
   aiBudget = bud;
   document.querySelectorAll('.ai-budget-btn').forEach(b => b.classList.remove('active'));
@@ -877,23 +990,7 @@ async function generateCities() {
   loadCities();
 }
 
-// async function loadCities() {
-//   const res = await fetch("http://localhost:5000/api/cities");
-//   const data = await res.json();
 
-//   const container = document.getElementById("destinations");
-//   container.innerHTML = "";
-
-//   data.forEach(city => {
-//     container.innerHTML += `
-//       <div class="card">
-//         <img src="${city.image}" />
-//         <h3>${city.name}</h3>
-//         <p>${city.description}</p>
-//       </div>
-//     `;
-//   });
-// }
 async function loadTrending() {
   const search = document.getElementById("searchTrending").value;
 
@@ -954,150 +1051,21 @@ function renderAICards(data) {
       <div class="ai-card-why">
         ${place.description || 'Perfect match for your budget.'}
       </div>
-      <button class="btn btn-primary btn-sm"
-        style="margin-top:14px;width:100%"
-        onclick='showPlaceDetails(${JSON.stringify(place)})'>
+      <button class="btn btn-primary btn-sm" style="margin-top:14px;width:100%">
         View Details →
       </button>
     `;
 
+    card.style.cursor = 'pointer';
+    card.addEventListener('click', () => window.location.href = '/place/' + place.slug);
+
     cardsDiv.appendChild(card);
 
-    setTimeout(() => {
-      card.classList.add('show');
-    }, 100 * index);
+    setTimeout(() => card.classList.add('show'), 100 * index);
   });
 }
 
-// FIX #1 & #3: Renamed to showPlaceDetails → opens the dedicated place modal
-// function showPlaceDetails(place) {
-//   const modal = document.getElementById('place-modal');
-//   const body = document.getElementById('place-modal-body');
 
-//   const images = place.images || [];
-//   const highlights = place.highlights || [];
-
-//   body.innerHTML = `
-//     <h2 style="margin-bottom:8px">${place.name}</h2>
-//     <p style="color:var(--text3);margin-bottom:10px">
-//       ${place.state || ''} • ${(place.type || '').toUpperCase()}
-//     </p>
-
-//     <div style="display:flex;gap:10px;overflow-x:auto;margin-bottom:16px">
-//       ${images.length
-//         ? images.map(img => `
-//           <img src="${img}?w=600&auto=format"
-//                style="height:180px;border-radius:12px;object-fit:cover">
-//         `).join('')
-//         : '<p>No images available</p>'}
-//     </div>
-
-//     <p style="margin-bottom:14px">
-//       ${place.description || 'No description available.'}
-//     </p>
-
-//     <div style="margin-bottom:14px">
-//       <strong>⭐ Rating:</strong> ${place.rating || 'N/A'}
-//       <br>
-//       <strong>💰 Avg Cost:</strong> ₹${place.avgCostPerDay || 'N/A'}/day
-//     </div>
-
-//     <div style="margin-bottom:16px">
-//       <strong>✨ Highlights:</strong>
-//       <ul style="margin-top:8px;padding-left:18px">
-//         ${highlights.length
-//           ? highlights.map(h => `<li>${h}</li>`).join('')
-//           : '<li>No highlights listed</li>'}
-//       </ul>
-//     </div>
-
-//     ${place.lat && place.lng ? `
-//     <iframe
-//       width="100%"
-//       height="250"
-//       style="border:none;border-radius:12px"
-//       src="https://www.openstreetmap.org/export/embed.html?bbox=${place.lng-0.1}%2C${place.lat-0.1}%2C${place.lng+0.1}%2C${place.lat+0.1}&layer=mapnik&marker=${place.lat}%2C${place.lng}">
-//     </iframe>` : ''}
-//   `;
-
-//   modal.style.display = 'flex';
-//   document.body.style.overflow = 'hidden';
-// }
-
-// function showPlaceDetails(place) {
-
-//   const modal = document.getElementById('place-modal');
-//   const body = document.getElementById('place-modal-body');
-
-//   const attractions = place.attractions || [];
-
-//   body.innerHTML = `
-//     <h1 style="font-size:42px;margin-bottom:10px">
-//       ${place.name}
-//     </h1>
-
-//     <p style="color:var(--text3);margin-bottom:20px">
-//       ⭐ ${place.rating || 'N/A'} • ₹${place.avgCostPerDay}/day
-//     </p>
-
-//     <!-- MAIN IMAGE -->
-//     <img src="${place.mainImage}" 
-//          style="width:100%;
-//                 height:400px;
-//                 object-fit:cover;
-//                 border-radius:20px;
-//                 margin-bottom:40px">
-
-//     <!-- DESCRIPTION -->
-//     <h2>About</h2>
-//     <p style="line-height:1.8;margin-bottom:40px;color:var(--text2)">
-//       ${place.description || 'No description available'}
-//     </p>
-
-//     <!-- ATTRACTION SLIDER -->
-//     <h2>✨ Attractions</h2>
-
-//     <div style="
-//         display:grid;
-//         grid-template-columns:repeat(4,1fr);
-//         gap:20px;
-//         margin-top:20px;
-//         overflow-x:auto;
-//       ">
-
-//       ${
-//         attractions.length
-//         ? attractions.map(a => `
-//             <div style="
-//                 min-width:250px;
-//                 background:#111;
-//                 border-radius:16px;
-//                 padding:15px;
-//                 transition:0.3s;
-//               ">
-
-//               <img src="${a.image}"
-//                    style="width:100%;
-//                           height:160px;
-//                           object-fit:cover;
-//                           border-radius:12px;
-//                           margin-bottom:10px">
-
-//               <h4>${a.name}</h4>
-//               <p style="font-size:14px;color:var(--text3)">
-//                 ${a.description}
-//               </p>
-//             </div>
-//           `).join('')
-//         : '<p>No attractions available</p>'
-//       }
-
-//     </div>
-//   `;
-
-//   modal.style.display = 'block';
-//   document.body.style.overflow = 'hidden';
-// }
 function showPlaceDetails(place) {
 
   const modal = document.getElementById('place-modal');
@@ -1229,7 +1197,7 @@ async function generateAI() {
 
 
 
-/* ── Pricing ───────────────────────────────────────────────────────────────── */
+/* ── Pricing  */
 function toggleBilling() {
   annualBilling = !annualBilling;
   document.getElementById('billing-toggle').classList.toggle('on', annualBilling);
@@ -1242,10 +1210,7 @@ function toggleBilling() {
   showToast(annualBilling ? '🎉 Annual billing selected — save 30%!' : 'Switched to monthly billing', 'info');
 }
 
-/* ── Auth Modal ─────────────────────────────────────────────────────────────
-   FIX #1 & #3: Renamed openModal→openAuthModal, closeModal→closeAuthModal,
-   closeModalOuter→closeAuthModalOuter. No name clash with place modal.
-───────────────────────────────────────────────────────────────────────────── */
+/* ── Auth Modal */
 function openAuthModal(tab) {
   document.getElementById('auth-modal').classList.add('open');
   switchTab(tab);
@@ -1291,63 +1256,90 @@ function showToast(msg, type = 'success') {
   }, 3500);
 }
 
-/* ── Map (Leaflet / OpenStreetMap) ─────────────────────────────────────────
-   FIX #7: Map initialised inside DOMContentLoaded equivalent — but since
-   this script is at end of body, the element exists. Wrapped in try/catch
-   to avoid crashing if the element is missing.
-───────────────────────────────────────────────────────────────────────────── */
-// let map = null;
-// let markers = [];
 
-// try {
-//   map = L.map('map').setView([20.5937, 78.9629], 5);
-//   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-//     attribution: '© OpenStreetMap contributors',
-//   }).addTo(map);
-// } catch (e) {
-//   console.warn('Map failed to initialise:', e);
-// }
-
-function showCitiesOnMap(cities) {
-  if (!map) return;
-  markers.forEach(m => map.removeLayer(m));
-  markers = [];
-  cities.forEach(city => {
-    if (!city.lat || !city.lng) return;
-    const marker = L.marker([city.lat, city.lng])
-      .addTo(map)
-      .bindPopup(`<b>${city.name}</b><br/>₹${city.avgCostPerDay}/day<br/>⭐ ${city.rating}`);
-    markers.push(marker);
-  });
-  if (cities.length > 0 && cities[0].lat) {
-    map.setView([cities[0].lat, cities[0].lng], 6);
-  }
-}
-function initPlaceMap(lat, lng, name) {
-
-  if (!lat || !lng) return;
-
-  const map = L.map('place-map').setView([lat, lng], 13);
-
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap contributors'
-  }).addTo(map);
-
-  L.marker([lat, lng])
-    .addTo(map)
-    .bindPopup(`<b>${name}</b>`)
-    .openPopup();
-}
 
 let currentSlide = 0;
 
 function changeSlide(direction) {
   const slides = document.querySelectorAll(".gallery-slide");
-  slides[currentSlide].classList.remove("active");
+  slides[currentSlide].classList.re
+}
 
-  currentSlide = (currentSlide + direction + slides.length) % slides.length;
 
-  slides[currentSlide].classList.add("active");
+
+
+
+function _initials(name) {
+  if (!name) return "U";
+  return name.trim().split(" ").filter(Boolean).map(w => w[0]).join("").toUpperCase().slice(0,2) || "U";
+}
+function _setText(id, val) { const el = document.getElementById(id); if (el) el.textContent = val; }
+
+function _showProfile(user) {
+  window._currentUser = user;
+  const ini = _initials(user.name);
+  const guest = document.getElementById("nav-guest");
+  const navU  = document.getElementById("nav-user");
+  if (guest) guest.style.display = "none";
+  if (navU)  { navU.style.display = "flex"; navU.style.alignItems = "center"; }
+  _setText("nav-avatar-initials", ini);
+  _setText("nav-user-name",       user.name);
+  _setText("dropdown-avatar",     ini);
+  _setText("dropdown-name",       user.name);
+  _setText("dropdown-email",      user.email);
+  _setText("epm-avatar",          ini);
+}
+
+function toggleProfileMenu(e) {
+  e.stopPropagation();
+  document.getElementById("profile-dropdown").classList.toggle("open");
+}
+document.addEventListener("click", () => {
+  const dd = document.getElementById("profile-dropdown");
+  if (dd) dd.classList.remove("open");
+});
+
+function openEditProfile() {
+  const u = window._currentUser || {};
+  document.getElementById("profile-dropdown").classList.remove("open");
+  document.getElementById("epm-name").value = u.name || "";
+  document.getElementById("epm-email").value = u.email || "";
+  document.getElementById("epm-password").value = "";
+  document.getElementById("epm-msg").textContent = "";
+  document.getElementById("editProfileModal").classList.add("open");
+}
+function closeEditProfile() {
+  document.getElementById("editProfileModal").classList.remove("open");
+}
+document.getElementById("editProfileModal").addEventListener("click", function(e) {
+  if (e.target === this) closeEditProfile();
+});
+
+async function saveProfile() {
+  const name     = document.getElementById("epm-name").value.trim();
+  const email    = document.getElementById("epm-email").value.trim();
+  const password = document.getElementById("epm-password").value;
+  const msgEl    = document.getElementById("epm-msg");
+
+  if (!name || !email) { msgEl.style.color="#ff5c5c"; msgEl.textContent="Name and email are required."; return; }
+  if (password && password.length < 8) { msgEl.style.color="#ff5c5c"; msgEl.textContent="Password must be 8+ characters."; return; }
+
+  msgEl.style.color="inherit"; msgEl.textContent="Saving...";
+
+  try {
+    const body = { name, email };
+    if (password) body.password = password;
+    const res = await fetch("/api/user/profile", {
+      method:"PATCH", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)
+    });
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
+    _showProfile(data.user);
+    msgEl.style.color="#2ecc71"; msgEl.textContent="Profile updated!";
+    setTimeout(closeEditProfile, 1400);
+  } catch(err) {
+    msgEl.style.color="#ff5c5c"; msgEl.textContent=err.message||"Update failed.";
+  }
 }
 </script>
 <script src="/main.js"></script>
