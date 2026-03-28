@@ -250,7 +250,7 @@ function openrestaurantBooking()  { _externalRedirect("https://www.zomato.com");
         <img src="https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=600&q=80" alt="Kerala">
         <div class="dest-card-body">
           <div class="dest-card-city">Kerala</div>
-          <div class="dest-card-meta"><span>⭐ 4.9</span><span>₹5,500/day</span></div>
+          <div class="dest-card-meta"><span>⭐ 4.9</span><span>₹2000/day</span></div>
           <div class="dest-tag">🌿 Nature</div>
         </div>
       </div>
@@ -388,10 +388,592 @@ function openrestaurantBooking()  { _externalRedirect("https://www.zomato.com");
         <span>AI is analyzing your preferences<span class="loading-dots"></span></span>
       </div>
       <div class="ai-right reveal delay-2" id="ai-cards"></div>
-      <div id="map" style="height:500px;width:100%;margin-top:20px;"></div>
+      
     </div>
   </div>
 </section>
+
+
+
+
+
+
+
+
+
+<!-- ── ATTRACTIONS SLIDER ── -->
+<section class="attractions-section">
+  <div class="att-header">
+    <div class="att-kicker">Must Visit</div>
+    <h2 class="att-title">Top Attractions</h2>
+    <div class="att-nav">
+      <button class="att-btn" id="attPrev">&#8592;</button>
+      <button class="att-btn" id="attNext">&#8594;</button>
+    </div>
+  </div>
+
+  <div class="att-track-wrap" id="attWrap">
+    <div class="att-track" id="attTrack">
+      <!-- Cards injected by JS -->
+    </div>
+  </div>
+</section>
+
+<style>
+/* ── SECTION ── */
+.attractions-section {
+  padding: 56px 0 70px;
+  /* padding-right: 50px;
+  padding-left: 40px; */
+  height: 900px;
+  gap: 40px;
+}
+
+.att-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 48px;
+  margin-bottom: 32px;
+  gap: 16px;
+}
+
+.att-kicker {
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--rust, #C4521A);
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.att-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(26px, 3.5vw, 42px);
+  font-weight: 700;
+  color: var(--ink, #1C1914);
+  line-height: 1.1;
+  margin: 0;
+  flex: 1;
+}
+
+/* ── NAV BUTTONS ── */
+.att-nav {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.att-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 252, 250, 0.2);
+  /* background: transparent; */
+  color: var(--ink, #f9ae2e);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.att-btn:hover {
+  background: var(--rust, #C4521A);
+  border-color: var(--rust, #C4521A);
+  color: #fff;
+}
+/* 
+.att-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+} */
+
+
+
+/* ── TRACK ── */
+.att-track-wrap {
+  overflow: hidden;
+  padding: 8px 48px 16px;
+}
+
+.att-track {
+  display: flex;
+  gap: 20px;
+  transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform;
+}
+
+/* ── CARD ── */
+.att-card {
+  flex: 0 0 calc((100% - 30px) / 4);
+  height: 600px;
+  gap: 30px;
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.att-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.22);
+}
+
+/* full-cover image */
+.att-card-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.att-card:hover .att-card-img {
+  transform: scale(1.07);
+}
+
+/* gradient overlay */
+.att-card-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 30%,
+    rgba(10, 8, 5, 0.5) 60%,
+    rgba(10, 8, 5, 0.88) 100%
+  );
+  transition: opacity 0.3s;
+}
+
+/* bottom content */
+.att-card-body {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 18px 16px 16px;
+  z-index: 2;
+}
+
+.att-card-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.25;
+  margin-bottom: 10px;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+}
+
+.att-explore-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 7px 14px;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, transform 0.15s;
+  font-family: 'Outfit', sans-serif;
+}
+
+.att-explore-btn:hover {
+  background: var(--rust, #C4521A);
+  border-color: var(--rust, #C4521A);
+  transform: translateX(2px);
+}
+
+.att-explore-btn-arrow {
+  font-size: 10px;
+  transition: transform 0.2s;
+}
+
+.att-explore-btn:hover .att-explore-btn-arrow {
+  transform: translateX(3px);
+}
+
+@media (max-width: 768px) {
+  .att-header { padding: 0 24px; }
+  .att-track-wrap { padding: 16px 24px 16px; }
+  .att-card { flex: 0 0 220px; }
+}
+</style>
+
+<script>
+/* ─────────────────────────────────────────
+   ATTRACTION SLIDER
+   
+   Pass your attractions array here.
+   Each item needs: { name, image, description }
+   
+   In your real page, replace `ATTRACTIONS`
+   with data.attractions from your API call.
+───────────────────────────────────────── */
+
+const ATTRACTIONS = [
+  /* Replace this with: place.attractions from your /api/place/:slug response */
+  {
+    name: "Calangute Beach",
+    image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=600",
+    description: "King of beaches"
+  },
+  {
+    name: "Fort Aguada",
+    image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600",
+    description: "Portuguese heritage fort"
+  },
+  {
+    name: "Dudhsagar Falls",
+    image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600",
+    description: "Majestic four-tier waterfall"
+  },
+  {
+    name: "Anjuna Flea Market",
+    image: "https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=600",
+    description: "Vibrant weekly market"
+  },
+  {
+    name: "Basilica of Bom Jesus",
+    image: "https://images.unsplash.com/photo-1548013146-72479768bada?w=600",
+    description: "UNESCO World Heritage church"
+  },
+  {
+    name: "Palolem Beach",
+    image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600",
+    description: "Serene crescent bay"
+  }
+];
+
+(function initAttractionSlider(attractions) {
+  const track    = document.getElementById('attTrack');
+  const prevBtn  = document.getElementById('attPrev');
+  const nextBtn  = document.getElementById('attNext');
+
+  const VISIBLE  = 4;
+  const CARD_W   = 250;
+  const GAP      = 30;
+  const STEP     = CARD_W + GAP;
+
+  let current = 0;
+  const maxIdx = Math.max(0, attractions.length - VISIBLE);
+
+  /* ── Build cards ── */
+  function buildCards() {
+    track.innerHTML = '';
+    attractions.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'att-card';
+      card.innerHTML = `
+        <img class="att-card-img"
+             src="${item.image || item.img || ''}"
+             alt="${item.name}"
+             loading="lazy">
+        <div class="att-card-overlay"></div>
+        <div class="att-card-body">
+          <div class="att-card-name">${item.name}</div>
+          <button class="att-explore-btn"
+                  onclick="event.stopPropagation(); exploreAttraction('${item.name}')">
+            Explore
+            <span class="att-explore-btn-arrow">→</span>
+          </button>
+        </div>`;
+      track.appendChild(card);
+    });
+  }
+
+  /* ── Slide ── */
+  function goTo(idx) {
+    current = Math.max(0, Math.min(idx, maxIdx));
+    track.style.transform = `translateX(-${current * STEP}px)`;
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === maxIdx;
+  }
+
+  prevBtn.addEventListener('click', () => goTo(current - 1));
+  nextBtn.addEventListener('click', () => goTo(current + 1));
+
+  /* ── Touch / drag ── */
+  let startX = 0;
+  track.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
+  track.addEventListener('touchend', e => {
+    const diff = startX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) goTo(diff > 0 ? current + 1 : current - 1);
+  }, { passive: true });
+
+  buildCards();
+  goTo(0);
+
+})(ATTRACTIONS);
+
+/* Called when Explore is clicked — wire this to your detail modal or page */
+function exploreAttraction(name) {
+  console.log('Explore:', name);
+  /* Example: open a modal, navigate to detail page, etc.
+     window.location.href = `/attraction/${name.toLowerCase().replace(/\s+/g,'-')}`;
+  */
+}
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- <section id = itineary-section class="itineary">
+  <h1>discover itinearies</h1>
+</section> -->
+
+
+
+
+
+<!-- ══════════════════════════════ LIST VIEW ══════════════════════════════ -->
+<div id="list-view">
+  <div class="hero">
+    <p class="hero-eyebrow">Itineraries</p>
+    <h1>Travel with <em>intention</em></h1>
+    <p>Thoughtfully crafted itineraries for every kind of traveller — from mountain retreats to coastal escapes.</p>
+  </div>
+
+  <div class="slider-section">
+    <div class="slider-track-wrap" id="trackWrap">
+      <div class="slider-track" id="track"></div>
+    </div>
+    <div class="slider-nav">
+      <button class="nav-btn" id="prevBtn">&#8592;</button>
+      <div class="nav-dots" id="dots"></div>
+      <button class="nav-btn" id="nextBtn">&#8594;</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ DETAIL VIEW ══════════════════════════════ -->
+<div id="detail-view">
+  <button class="detail-back" id="backBtn">Back to Itineraries</button>
+
+  <div class="detail-hero">
+    <img id="d-img" src="" alt="">
+    <div class="detail-hero-overlay">
+      <p class="detail-category" id="d-category"></p>
+      <h1 class="detail-title" id="d-title"></h1>
+      <p class="detail-subtitle" id="d-subtitle"></p>
+    </div>
+  </div>
+
+  <div class="detail-stats">
+    <div class="stat-item">
+      <div class="stat-label">Duration</div>
+      <div class="stat-value" id="d-days">—</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">Best Season</div>
+      <div class="stat-value" id="d-season" style="font-size:18px;padding-top:4px;">—</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">Difficulty</div>
+      <div class="stat-value" id="d-difficulty" style="font-size:18px;padding-top:4px;">—</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">Rating</div>
+      <div class="stat-value" id="d-rating">—</div>
+    </div>
+  </div>
+
+  <div class="detail-body">
+    <h2 class="detail-section-title">Overview</h2>
+    <p class="detail-description" id="d-description"></p>
+
+    <h2 class="detail-section-title">Day by Day</h2>
+    <div class="timeline" id="d-timeline"></div>
+
+    <h2 class="detail-section-title">Highlights</h2>
+    <div class="highlights-grid" id="d-highlights"></div>
+
+    <div class="book-strip">
+      <div class="book-strip-text">
+        <div class="book-strip-title" id="d-book-title"></div>
+        <p>All-inclusive · Guided · Flexible dates</p>
+      </div>
+      <div class="book-strip-price" id="d-price"></div>
+      <button class="book-btn">Book This Journey</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let DB = [];
+
+/* ========= FETCH DATA FROM BACKEND ========= */
+async function loadData() {
+  try {
+    const res = await fetch("/api/cities");
+    DB = await res.json();
+
+    buildCards();
+    buildDots();
+    goTo(0);
+    startAuto();
+  } catch (err) {
+    console.error("Error loading data:", err);
+  }
+}
+
+/* ========= SLIDER ========= */
+const track = document.getElementById('track');
+const wrap = document.getElementById('trackWrap');
+const dotsEl = document.getElementById('dots');
+
+let currentIdx = 0;
+let autoTimer;
+
+const GAP = 30;
+
+/*  FIXED 4 CARDS */
+function visibleCount() {
+  return 4;
+}
+
+function cardWidth() {
+  return wrap.offsetWidth / 4;
+}
+
+function maxIndex() {
+  return Math.max(0, DB.length - visibleCount());
+}
+
+/* ========= BUILD CARDS ========= */
+function buildCards() {
+  track.innerHTML = '';
+
+  DB.forEach(item => {
+    const stars = '★'.repeat(Math.floor(item.rating));
+
+    const el = document.createElement('div');
+    el.className = 'iti-card';
+
+    el.innerHTML = `
+      <div class="card-img-wrap">
+        <img class="card-img" src="${item.img}">
+        <div class="card-img-overlay"></div>
+        <span class="card-badge">${item.category}</span>
+        <span class="card-days">${item.days} days</span>
+      </div>
+
+      <div class="card-body">
+        <h3 class="card-title">${item.title}</h3>
+        <p class="card-desc">${item.desc}</p>
+
+        <div class="card-meta">
+          <div class="card-price">${item.price}</div>
+          
+        </div>
+      </div>
+    `;
+
+   
+    el.addEventListener('click', () => {
+      window.location.href = `/itinerary/${item.slug}`;
+    });
+
+    track.appendChild(el);
+  });
+}
+
+/* ========= DOTS ========= */
+function buildDots() {
+  dotsEl.innerHTML = '';
+
+  for (let i = 0; i <= maxIndex(); i++) {
+    const dot = document.createElement('div');
+    dot.className = 'dot';
+
+    dot.addEventListener('click', () => goTo(i));
+
+    dotsEl.appendChild(dot);
+  }
+}
+
+function updateDots() {
+  document.querySelectorAll('.dot').forEach((d, i) => {
+    d.classList.toggle('active', i === currentIdx);
+  });
+}
+
+/* ========= NAVIGATION ========= */
+function goTo(idx) {
+  currentIdx = Math.max(0, Math.min(idx, maxIndex()));
+  track.style.transform = `translateX(-${currentIdx * cardWidth()}px)`;
+  updateDots();
+}
+
+function next() {
+  goTo(currentIdx >= maxIndex() ? 0 : currentIdx + 1);
+}
+
+function prev() {
+  goTo(currentIdx <= 0 ? maxIndex() : currentIdx - 1);
+}
+
+document.getElementById('nextBtn').onclick = () => {
+  next();
+};
+
+document.getElementById('prevBtn').onclick = () => {
+  prev();
+};
+
+/* ========= AUTO SLIDE ========= */
+function startAuto() {
+  autoTimer = setInterval(next, 3000);
+}
+
+async function loadData() {
+  try {
+    const res = await fetch("/api/itineraries");  
+    DB = await res.json();
+
+    buildCards();
+    buildDots();
+    goTo(0);
+    startAuto();
+  } catch (err) {
+    console.error("Error loading data:", err);
+  }
+}
+
+/* ========= INIT ========= */
+loadData();
+</script>
+
 
 <!-- FEATURES -->
 <section id="features" class="section" style="background:var(--bg2)">

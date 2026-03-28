@@ -106,4 +106,12 @@ const citySchema = new mongoose.Schema({
   reviews:      [reviewSchema]
 });
 
+
+
+
+
+
+
+
+
 module.exports = mongoose.model("City", citySchema);

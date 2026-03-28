@@ -40,6 +40,9 @@ app.get("/place/:slug", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "place.html"));
 });
 
+app.get('/itinerary/:slug', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'itineary.html'));
+});
 
 app.get("/api/place/:slug", async (req, res) => {
   const place = await City.findOne({ slug: req.params.slug });
@@ -196,6 +199,40 @@ app.get("/api/cities", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+
+
+
+const Itinerary = require('./models/Itinerary'); // or City, whatever model has itineariescitySchema
+
+// GET all itineraries (for slider)
+app.get('/api/itineraries', async (req, res) => {
+  try {
+    const items = await Itinerary.find({});
+    res.json(items);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET single itinerary by slug (for detail page)
+app.get('/api/itinerary/:slug', async (req, res) => {
+  try {
+    const item = await Itinerary.findOne({ slug: req.params.slug });
+    if (!item) return res.status(404).json({ error: 'Not found' });
+    res.json(item);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+
+
+
+
+
+
 
 // ================= START =================
 

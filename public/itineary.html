@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Itinerary — BudgetTrip AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Libre+Baskerville:ital@0;1&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root {
+  --paper: #F5F0E8;
+  --paper2: #EDE8DC;
+  --ink: #1C1914;
+  --ink2: #4A4438;
+  --ink3: #7A7060;
+  --rust: #C4521A;
+  --rust2: #E8703A;
+  --gold: #C9962A;
+  --border: rgba(28,25,20,0.12);
+  --border2: rgba(28,25,20,0.06);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── LOADING ── */
+#loading {
+  position: fixed;
+  inset: 0;
+  background: var(--paper);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  z-index: 999;
+  transition: opacity 0.5s ease;
+}
+#loading.hide { opacity: 0; pointer-events: none; }
+.load-word {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(48px, 8vw, 96px);
+  font-weight: 900;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  transition: opacity 0.3s;
+}
+.load-sub {
+  font-size: 12px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--ink3);
+}
+.load-bar {
+  width: 160px;
+  height: 2px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+.load-bar-fill {
+  height: 100%;
+  background: var(--rust);
+  border-radius: 2px;
+  animation: load-progress 2s ease-in-out infinite;
+}
+@keyframes load-progress {
+  0% { width: 0%; margin-left: 0; }
+  50% { width: 70%; margin-left: 15%; }
+  100% { width: 0%; margin-left: 100%; }
+}
+
+/* ── TOP NAV ── */
+.top-nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 20px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background 0.4s, backdrop-filter 0.4s, border-color 0.4s;
+  border-bottom: 1px solid transparent;
+}
+.top-nav.scrolled {
+  background: rgba(245,240,232,0.94);
+  backdrop-filter: blur(16px);
+  border-color: var(--border);
+}
+.back-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: color 0.3s;
+}
+.top-nav.scrolled .back-link { color: var(--ink); }
+.back-link:hover { color: var(--rust2) !important; }
+.back-arrow {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+  transition: background 0.2s, border-color 0.2s;
+}
+.back-link:hover .back-arrow {
+  background: var(--rust);
+  border-color: var(--rust);
+  color: #fff !important;
+}
+.nav-dest {
+  font-family: 'Playfair Display', serif;
+  font-size: 16px;
+  font-style: italic;
+  font-weight: 700;
+  color: var(--ink2);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.top-nav.scrolled .nav-dest { opacity: 1; }
+
+/* ── HERO ── */
+.hero {
+  position: relative;
+  height: 100vh;
+  min-height: 620px;
+  overflow: hidden;
+}
+.hero-img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  filter: brightness(0.6) saturate(0.85);
+  transform: scale(1.06);
+  animation: zoom-out 14s ease-out forwards;
+}
+@keyframes zoom-out { to { transform: scale(1); } }
+
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; left: 0; right: 0;
+  height: 180px;
+  background: var(--paper);
+  clip-path: polygon(0 55%, 100% 0, 100% 100%, 0 100%);
+  z-index: 2;
+}
+
+.hero-body {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 80px 64px;
+}
+.hero-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--rust2);
+  margin-bottom: 18px;
+  animation: fade-up 0.7s 0.2s both;
+}
+.hero-eyebrow span { width: 32px; height: 1.5px; background: var(--rust2); display: block; }
+.hero-h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(56px, 10vw, 128px);
+  font-weight: 900;
+  color: #fff;
+  line-height: 0.9;
+  letter-spacing: -0.025em;
+  margin-bottom: 20px;
+  animation: fade-up 0.7s 0.35s both;
+}
+.hero-subtitle {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: clamp(18px, 2.5vw, 28px);
+  color: rgba(255,255,255,0.6);
+  font-weight: 400;
+  margin-bottom: 28px;
+  animation: fade-up 0.7s 0.45s both;
+}
+.hero-tags {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  animation: fade-up 0.7s 0.55s both;
+}
+.hero-tag {
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.22);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 7px 18px;
+  border-radius: 100px;
+  letter-spacing: 0.05em;
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── STATS BAND ── */
+.stats-band {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  background: var(--ink);
+  margin: -48px 48px 0;
+  border-radius: 16px;
+  position: relative;
+  z-index: 10;
+  overflow: hidden;
+}
+.sc {
+  padding: 28px 24px;
+  text-align: center;
+  border-right: 1px solid rgba(255,255,255,0.07);
+  position: relative;
+}
+.sc:last-child { border-right: none; }
+.sc::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 24px; height: 2px;
+  background: var(--rust);
+  border-radius: 2px;
+}
+.sc-label {
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+.sc-val {
+  font-family: 'Playfair Display', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+}
+.sc-unit {
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+  margin-top: 3px;
+  font-family: 'Outfit', sans-serif;
+}
+
+/* ── PAGE BODY ── */
+.page-body {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 88px 48px 0;
+}
+
+/* ── INTRO SPLIT ── */
+.intro-split {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 72px;
+  margin-bottom: 96px;
+  align-items: start;
+}
+.intro-kicker {
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--rust);
+  font-weight: 600;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.intro-kicker::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.intro-body {
+  font-family: 'Libre Baskerville', serif;
+  font-size: clamp(16px, 1.8vw, 20px);
+  line-height: 1.9;
+  color: var(--ink2);
+  font-style: italic;
+}
+
+/* aside */
+.aside-block { display: flex; flex-direction: column; gap: 14px; }
+.aside-card {
+  background: var(--paper2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px 26px;
+}
+.aside-card-kicker {
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+.aside-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border2);
+  font-size: 13px;
+}
+.aside-row:last-child { border-bottom: none; padding-bottom: 0; }
+.ar-k { color: var(--ink3); }
+.ar-v { color: var(--ink); font-weight: 600; }
+.price-big {
+  font-family: 'Playfair Display', serif;
+  font-size: 44px;
+  font-weight: 900;
+  color: var(--rust);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.price-note { font-size: 12px; color: var(--ink3); }
+
+/* ── DECO DIVIDER ── */
+.deco {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 36px;
+}
+.deco-line { flex: 1; height: 1px; background: var(--border); }
+.deco-diamond {
+  width: 8px; height: 8px;
+  background: var(--rust);
+  transform: rotate(45deg);
+  flex-shrink: 0;
+}
+
+/* ── SECTION HEAD ── */
+.sec-kicker {
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--rust);
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.sec-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(30px, 4vw, 50px);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  margin-bottom: 48px;
+}
+.sec-title em { font-style: italic; color: var(--rust); }
+
+/* ── TIMELINE ── */
+.timeline-wrap { margin-bottom: 96px; }
+.timeline { position: relative; }
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 50px;
+  top: 0; bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, var(--rust), rgba(196,82,26,0.1));
+}
+.tl-row {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  margin-bottom: 0;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s, transform 0.5s;
+}
+.tl-row.visible { opacity: 1; transform: translateY(0); }
+.tl-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 4px;
+}
+.tl-dot {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 2px solid var(--rust);
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+}
+.tl-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--rust);
+}
+.tl-right {
+  padding: 2px 0 48px 28px;
+}
+.tl-tag {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--rust);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.tl-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 10px;
+  line-height: 1.2;
+}
+.tl-desc {
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--ink2);
+}
+
+/* ── HIGHLIGHTS ── */
+.hl-wrap { margin-bottom: 96px; }
+.hl-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+.hl-card {
+  background: var(--paper2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: default;
+  transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+}
+.hl-card:hover {
+  border-color: var(--rust);
+  transform: translateY(-4px);
+  box-shadow: 0 14px 32px rgba(196,82,26,0.1);
+}
+.hl-icon {
+  width: 40px; height: 40px;
+  border-radius: 9px;
+  background: rgba(196,82,26,0.07);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 19px;
+  flex-shrink: 0;
+}
+.hl-text { font-size: 13px; font-weight: 500; color: var(--ink); line-height: 1.4; }
+
+/* ── BOOKING BAND ── */
+.booking-band {
+  background: var(--ink);
+  border-radius: 20px 20px 0 0;
+  padding: 56px 64px;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 48px;
+  position: relative;
+  overflow: hidden;
+}
+.booking-band::before {
+  content: '';
+  position: absolute;
+  top: -80px; right: -80px;
+  width: 320px; height: 320px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.04);
+}
+.booking-band::after {
+  content: '';
+  position: absolute;
+  bottom: -60px; left: 300px;
+  width: 200px; height: 200px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.03);
+}
+.bb-left { position: relative; z-index: 1; }
+.bb-kicker {
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--rust2);
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+.bb-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(20px, 2.5vw, 32px);
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.15;
+  margin-bottom: 8px;
+}
+.bb-note { font-size: 13px; color: rgba(255,255,255,0.32); }
+.bb-price-block { position: relative; z-index: 1; text-align: right; }
+.bb-price-label { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 4px; }
+.bb-price {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(36px, 4.5vw, 52px);
+  font-weight: 900;
+  color: var(--gold);
+  line-height: 1;
+}
+.bb-per { font-size: 12px; color: rgba(255,255,255,0.3); margin-top: 3px; }
+.bb-btn {
+  position: relative;
+  z-index: 1;
+  background: var(--rust);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 18px 38px;
+  font-size: 15px;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: background 0.2s, transform 0.15s;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.bb-btn:hover { background: var(--rust2); transform: translateY(-2px); }
+.bb-btn-icon {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.18);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+}
+
+/* error */
+#errWrap { display: none; text-align: center; padding: 120px 24px; }
+#errWrap h2 { font-family:'Playfair Display',serif; font-size:42px; margin-bottom:14px; }
+#errWrap p { color: var(--ink3); margin-bottom: 28px; }
+.err-btn {
+  display: inline-block;
+  background: var(--rust);
+  color: #fff;
+  text-decoration: none;
+  padding: 14px 34px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+@media (max-width: 960px) {
+  .top-nav { padding: 16px 24px; }
+  .hero-body { padding: 60px 28px; }
+  .stats-band { grid-template-columns: repeat(2,1fr); margin: -28px 24px 0; }
+  .page-body { padding: 64px 24px 0; }
+  .intro-split { grid-template-columns: 1fr; gap: 40px; }
+  .hl-grid { grid-template-columns: repeat(2,1fr); }
+  .booking-band { grid-template-columns: 1fr; padding: 40px 28px; gap: 28px; }
+  .bb-price-block { text-align: left; }
+  .timeline::before { left: 21px; }
+  .tl-row { grid-template-columns: 42px 1fr; }
+  .tl-dot { width: 34px; height: 34px; }
+}
+@media (max-width: 540px) {
+  .hl-grid { grid-template-columns: 1fr; }
+  .stats-band { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loading">
+  <div class="load-word" id="loadWord">Journey</div>
+  <div class="load-sub">Preparing your itinerary</div>
+  <div class="load-bar"><div class="load-bar-fill"></div></div>
+</div>
+
+<!-- NAV -->
+<nav class="top-nav" id="topNav">
+  <a class="back-link" href="javascript:history.back()">
+    <div class="back-arrow">←</div>
+    Itineraries
+  </a>
+  <span class="nav-dest" id="navDest"></span>
+</nav>
+
+<!-- PAGE -->
+<div id="page" style="display:none">
+
+  <!-- HERO -->
+  <div class="hero">
+    <img class="hero-img" id="dImg" src="" alt="">
+    <div class="hero-body">
+      <div class="hero-eyebrow"><span></span><span id="dCategory"></span></div>
+      <h1 class="hero-h1" id="dTitle"></h1>
+      <p class="hero-subtitle" id="dDesc"></p>
+      <div class="hero-tags" id="dTags"></div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-band">
+    <div class="sc">
+      <div class="sc-label">Duration</div>
+      <div class="sc-val" id="sDays">—</div>
+      <div class="sc-unit">days</div>
+    </div>
+    <div class="sc">
+      <div class="sc-label">Best Season</div>
+      <div class="sc-val" id="sSeason" style="font-size:17px;padding-top:5px">—</div>
+    </div>
+    <div class="sc">
+      <div class="sc-label">Difficulty</div>
+      <div class="sc-val" id="sDiff" style="font-size:17px;padding-top:5px">—</div>
+    </div>
+    <div class="sc">
+      <div class="sc-label">Rating</div>
+      <div class="sc-val" id="sRating">—</div>
+      <div class="sc-unit">out of 5</div>
+    </div>
+  </div>
+
+  <div class="page-body">
+
+    <!-- INTRO -->
+    <div class="intro-split" style="margin-top:80px">
+      <div>
+        <div class="intro-kicker">About This Journey</div>
+        <p class="intro-body" id="dDescription"></p>
+      </div>
+      <div class="aside-block">
+        <div class="aside-card">
+          <div class="aside-card-kicker">Trip Details</div>
+          <div class="aside-row"><span class="ar-k">Duration</span><span class="ar-v" id="afDays">—</span></div>
+          <div class="aside-row"><span class="ar-k">Best Time</span><span class="ar-v" id="afSeason">—</span></div>
+          <div class="aside-row"><span class="ar-k">Difficulty</span><span class="ar-v" id="afDiff">—</span></div>
+          <div class="aside-row"><span class="ar-k">Category</span><span class="ar-v" id="afCat">—</span></div>
+          <div class="aside-row"><span class="ar-k">Rating</span><span class="ar-v" id="afRating">—</span></div>
+        </div>
+        <div class="aside-card">
+          <div class="aside-card-kicker">Starting Price</div>
+          <div class="price-big" id="afPrice">—</div>
+          <div class="price-note">per person · all-inclusive</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TIMELINE -->
+    <div class="timeline-wrap">
+      <div class="deco"><div class="deco-line"></div><div class="deco-diamond"></div><div class="deco-line"></div></div>
+      <div class="sec-kicker">Day by Day</div>
+      <h2 class="sec-title">Your <em>Journey</em> Unfolds</h2>
+      <div class="timeline" id="dTimeline"></div>
+    </div>
+
+    <!-- HIGHLIGHTS -->
+    <div class="hl-wrap">
+      <div class="deco"><div class="deco-line"></div><div class="deco-diamond"></div><div class="deco-line"></div></div>
+      <div class="sec-kicker">Highlights</div>
+      <h2 class="sec-title">What <em>Awaits</em> You</h2>
+      <div class="hl-grid" id="dHighlights"></div>
+    </div>
+
+  </div>
+
+  <!-- BOOKING -->
+  <div class="booking-band">
+    <div class="bb-left">
+      <div class="bb-kicker">Ready to Explore?</div>
+      <div class="bb-title" id="bbTitle">—</div>
+      <div class="bb-note">Flexible cancellation · Expert guides · 24/7 support</div>
+    </div>
+    <div class="bb-price-block">
+      <div class="bb-price-label">Starting from</div>
+      <div class="bb-price" id="bbPrice">—</div>
+      <div class="bb-per">per person</div>
+    </div>
+    <button class="bb-btn" onclick="alert('Booking coming soon!')">
+      Book This Trip
+      <div class="bb-btn-icon">→</div>
+    </button>
+  </div>
+
+</div>
+
+<!-- ERROR -->
+<div id="errWrap">
+  <h2>Not Found</h2>
+  <p>We couldn't find this itinerary. It may have been removed.</p>
+  <a class="err-btn" href="/">← Back to Home</a>
+</div>
+
+<script>
+function getSlug() {
+  const parts = window.location.pathname.split('/').filter(Boolean);
+  if (parts.length >= 2) return parts[parts.length - 1];
+  return new URLSearchParams(window.location.search).get('slug') || '';
+}
+
+/* scroll nav */
+window.addEventListener('scroll', () => {
+  document.getElementById('topNav').classList.toggle('scrolled', window.scrollY > 60);
+});
+
+/* loading word cycle */
+const words = ['Journey','Adventure','Explore','Discover','Wander'];
+let wi = 0;
+const wordEl = document.getElementById('loadWord');
+const wt = setInterval(() => {
+  wi = (wi + 1) % words.length;
+  wordEl.style.opacity = '0';
+  setTimeout(() => { wordEl.textContent = words[wi]; wordEl.style.opacity = '1'; }, 280);
+}, 800);
+
+/* timeline reveal */
+function initReveal() {
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 90);
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.tl-row').forEach(el => obs.observe(el));
+}
+
+function render(d) {
+  clearInterval(wt);
+
+  document.title = `${d.title} — BudgetTrip AI`;
+  document.getElementById('navDest').textContent = d.title || '';
+
+  // hero
+  document.getElementById('dImg').src = d.img || '';
+  document.getElementById('dImg').alt = d.title || '';
+  document.getElementById('dCategory').textContent = d.category || '';
+  document.getElementById('dTitle').textContent = d.title || '';
+  document.getElementById('dDesc').textContent = d.desc || '';
+
+  const tags = [
+    d.days ? `${d.days} Days` : null,
+    d.season || null,
+    d.difficulty || null,
+    d.rating ? `★ ${d.rating}` : null
+  ].filter(Boolean);
+  document.getElementById('dTags').innerHTML =
+    tags.map(t => `<div class="hero-tag">${t}</div>`).join('');
+
+  // stats
+  document.getElementById('sDays').textContent = d.days || '—';
+  document.getElementById('sSeason').textContent = d.season || '—';
+  document.getElementById('sDiff').textContent = d.difficulty || '—';
+  document.getElementById('sRating').textContent = d.rating || '—';
+
+  // description
+  document.getElementById('dDescription').textContent = d.description || '';
+
+  // aside
+  document.getElementById('afDays').textContent = d.days ? `${d.days} days` : '—';
+  document.getElementById('afSeason').textContent = d.season || '—';
+  document.getElementById('afDiff').textContent = d.difficulty || '—';
+  document.getElementById('afCat').textContent = d.category || '—';
+  document.getElementById('afRating').textContent = d.rating ? `${d.rating} / 5` : '—';
+  document.getElementById('afPrice').textContent = d.price || '—';
+
+  // timeline
+  const tl = document.getElementById('dTimeline');
+  if (Array.isArray(d.itinerary) && d.itinerary.length) {
+    tl.innerHTML = d.itinerary.map((day, i) => `
+      <div class="tl-row">
+        <div class="tl-left">
+          <div class="tl-dot"><div class="tl-num">${String(i+1).padStart(2,'0')}</div></div>
+        </div>
+        <div class="tl-right">
+          <div class="tl-tag">Day ${i + 1}</div>
+          <div class="tl-title">${day.title || ''}</div>
+          <div class="tl-desc">${day.desc || ''}</div>
+        </div>
+      </div>`).join('');
+  } else {
+    tl.innerHTML = '<p style="color:var(--ink3)">No itinerary details available.</p>';
+  }
+
+  // highlights
+  const hl = document.getElementById('dHighlights');
+  if (Array.isArray(d.highlights) && d.highlights.length) {
+    hl.innerHTML = d.highlights.map(h => {
+      const emoji = h.match(/\p{Emoji_Presentation}|\p{Emoji}\uFE0F/gu)?.[0] || '✦';
+      const text = h.replace(/^[\u{1F000}-\u{1FFFF}️\s]*/u, '').trim() || h;
+      return `<div class="hl-card">
+        <div class="hl-icon">${emoji}</div>
+        <div class="hl-text">${text}</div>
+      </div>`;
+    }).join('');
+  } else {
+    hl.innerHTML = '<p style="color:var(--ink3)">No highlights listed.</p>';
+  }
+
+  // booking
+  document.getElementById('bbTitle').textContent = `${d.title} — ${d.days || '?'}-Day Journey`;
+  document.getElementById('bbPrice').textContent = d.price || '—';
+
+  // show page
+  const loader = document.getElementById('loading');
+  loader.classList.add('hide');
+  setTimeout(() => loader.style.display = 'none', 500);
+  document.getElementById('page').style.display = 'block';
+  setTimeout(initReveal, 200);
+}
+
+function showError() {
+  clearInterval(wt);
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('errWrap').style.display = 'block';
+}
+
+/* theme sync */
+(function() {
+  try {
+    const t = localStorage.getItem('theme');
+    if (t === 'dark') document.body.style.setProperty('--paper','#0f0e0c');
+  } catch(e) {}
+})();
+
+async function load() {
+  const slug = getSlug();
+  if (!slug) return showError();
+  try {
+    const res = await fetch(`/api/itinerary/${slug}`);
+    if (!res.ok) throw new Error('Not found');
+    render(await res.json());
+  } catch(e) {
+    console.error(e);
+    showError();
+  }
+}
+
+load();
+</script>
+</body>
+</html>
