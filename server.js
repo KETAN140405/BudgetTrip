@@ -228,8 +228,42 @@ app.get('/api/itinerary/:slug', async (req, res) => {
 
 
 
+const Attraction = require('./models/Attraction');
+
+// GET all attractions for a city by slug
+app.get('/api/attractions/:citySlug', async (req, res) => {
+  try {
+    const attractions = await Attraction.find({ 
+      citySlug: req.params.citySlug 
+    });
+    res.json(attractions);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 
+// Serve attraction info page
+app.get('/attraction/:id', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'attraction.html'));
+});
+
+// API — get single attraction by ID
+app.get('/api/attraction/:id', async (req, res) => {
+  try {
+    const attraction = await Attraction.findById(req.params.id);
+    if (!attraction) return res.status(404).json({ error: 'Not found' });
+    res.json(attraction);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+app.get('/api/attractions', async (req, res) => {
+  const data = await Attraction.find(); // your collection
+  res.json(data);
+});
 
 
 

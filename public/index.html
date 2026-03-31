@@ -400,342 +400,216 @@ function openrestaurantBooking()  { _externalRedirect("https://www.zomato.com");
 
 
 
+<!-- ══════════════════════════════ ATTRACTIONS ══════════════════════════════ -->
 
-<!-- ── ATTRACTIONS SLIDER ── -->
+
 <section class="attractions-section">
-  <div class="att-header">
-    <div class="att-kicker">Must Visit</div>
-    <h2 class="att-title">Top Attractions</h2>
-    <div class="att-nav">
-      <button class="att-btn" id="attPrev">&#8592;</button>
-      <button class="att-btn" id="attNext">&#8594;</button>
-    </div>
+
+  <!-- <h2 class="att-title">Top Attractions</h2> -->
+    <h1>ATTRACTIONS</h1>
+    <h4>---BEYOND THE IMAGINATION---</h4>
+
+  <div class="att-track-wrap">
+    <div class="att-track" id="attTrack"></div>
   </div>
 
-  <div class="att-track-wrap" id="attWrap">
-    <div class="att-track" id="attTrack">
-      <!-- Cards injected by JS -->
-    </div>
+  <!-- NAV BUTTONS AT BOTTOM -->
+  <div class="att-nav-bottom">
+    <button id="attPrev">⬅</button>
+    <button id="attNext">➡</button>
   </div>
+
 </section>
 
 <style>
-/* ── SECTION ── */
+/* ══════ ATTRACTION SECTION ══════ */
 .attractions-section {
-  padding: 56px 0 70px;
-  /* padding-right: 50px;
-  padding-left: 40px; */
-  height: 900px;
-  gap: 40px;
+  padding: 40px;
+  text-align: center;
+}
+.attractions-section h1{
+   align-items: center;
+    justify-content: center;
+    font-size: 100px;
+    font-weight: 700;
+    color: #f8f7f7;
+}
+.attractions-section h4{
+  font-style: italic;
+  color: gold;
+   font-size: 40px;
+   margin-top: 20px;
+}
+.att-title{
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
-.att-header {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  padding: 0 48px;
-  margin-bottom: 32px;
-  gap: 16px;
-}
-
-.att-kicker {
-  font-size: 11px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--rust, #C4521A);
-  font-weight: 600;
-  margin-bottom: 6px;
-}
-
-.att-title {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(26px, 3.5vw, 42px);
-  font-weight: 700;
-  color: var(--ink, #1C1914);
-  line-height: 1.1;
-  margin: 0;
-  flex: 1;
-}
-
-/* ── NAV BUTTONS ── */
-.att-nav {
-  display: flex;
-  gap: 10px;
-  flex-shrink: 0;
-}
-
-.att-btn {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  border: 1.5px solid rgba(255, 252, 250, 0.2);
-  /* background: transparent; */
-  color: var(--ink, #f9ae2e);
-  font-size: 16px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s, border-color 0.2s, color 0.2s;
-}
-
-.att-btn:hover {
-  background: var(--rust, #C4521A);
-  border-color: var(--rust, #C4521A);
-  color: #fff;
-}
-/* 
-.att-btn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-} */
-
-
-
-/* ── TRACK ── */
 .att-track-wrap {
   overflow: hidden;
-  padding: 8px 48px 16px;
 }
 
 .att-track {
   display: flex;
+  
+  transition: transform 0.5s ease;
   gap: 20px;
-  transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  will-change: transform;
+  margin-top: 30px;
 }
 
-/* ── CARD ── */
+/* EXACTLY 4 CARDS */
 .att-card {
-  flex: 0 0 calc((100% - 30px) / 4);
+  flex: 0 0 calc(25% - 15px);
   height: 600px;
-  gap: 30px;
-  border-radius: 16px;
+  margin-top: 90px;
+  border-radius: 15px;
   overflow: hidden;
   position: relative;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  text-align: center;
+  transition: 0.2s;
 }
-
 .att-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 16px 40px rgba(0,0,0,0.22);
+        transform: translateY(-50px);
 }
 
-/* full-cover image */
-.att-card-img {
-  position: absolute;
-  inset: 0;
+/* .att-card:hover .att-name {
+    transform: translateY(-35px);
+} */
+
+/* IMAGE */
+.att-card img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.5s ease;
 }
 
-.att-card:hover .att-card-img {
-  transform: scale(1.07);
-}
-
-/* gradient overlay */
-.att-card-overlay {
+/* NAME */
+.att-name {
   position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to bottom,
-    transparent 30%,
-    rgba(10, 8, 5, 0.5) 60%,
-    rgba(10, 8, 5, 0.88) 100%
-  );
-  transition: opacity 0.3s;
+  bottom: 15px;
+  left: 30%;
+  font-size: 20px;
+  color: white;
+  font-weight: bold;
+  /* background: rgba(0,0,0,0.5);
+  padding: 5px 10px;
+  border-radius: 6px; */
 }
 
-/* bottom content */
-.att-card-body {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 18px 16px 16px;
-  z-index: 2;
+/* NAV BUTTONS */
+.att-nav-bottom {
+  margin-top: 20px;
 }
 
-.att-card-name {
-  font-family: 'Playfair Display', serif;
-  font-size: 17px;
-  font-weight: 700;
-  color: #fff;
-  line-height: 1.25;
-  margin-bottom: 10px;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.4);
-}
-
-.att-explore-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: #fff;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  padding: 7px 14px;
-  border-radius: 100px;
+.att-nav-bottom button {
+  padding: 10px 20px;
+  margin: 5px;
   cursor: pointer;
-  transition: background 0.2s, border-color 0.2s, transform 0.15s;
-  font-family: 'Outfit', sans-serif;
 }
 
-.att-explore-btn:hover {
-  background: var(--rust, #C4521A);
-  border-color: var(--rust, #C4521A);
-  transform: translateX(2px);
-}
 
-.att-explore-btn-arrow {
-  font-size: 10px;
-  transition: transform 0.2s;
-}
-
-.att-explore-btn:hover .att-explore-btn-arrow {
-  transform: translateX(3px);
-}
-
-@media (max-width: 768px) {
-  .att-header { padding: 0 24px; }
-  .att-track-wrap { padding: 16px 24px 16px; }
-  .att-card { flex: 0 0 220px; }
-}
 </style>
-
 <script>
-/* ─────────────────────────────────────────
-   ATTRACTION SLIDER
-   
-   Pass your attractions array here.
-   Each item needs: { name, image, description }
-   
-   In your real page, replace `ATTRACTIONS`
-   with data.attractions from your API call.
-───────────────────────────────────────── */
+let current = 0;
+const VISIBLE = 4;
+const GAP = 20;
+const AUTO_DELAY = 3000;
+let autoTimer1 = null;
+let totalCards = 0;
 
-const ATTRACTIONS = [
-  /* Replace this with: place.attractions from your /api/place/:slug response */
-  {
-    name: "Calangute Beach",
-    image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=600",
-    description: "King of beaches"
-  },
-  {
-    name: "Fort Aguada",
-    image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600",
-    description: "Portuguese heritage fort"
-  },
-  {
-    name: "Dudhsagar Falls",
-    image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600",
-    description: "Majestic four-tier waterfall"
-  },
-  {
-    name: "Anjuna Flea Market",
-    image: "https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=600",
-    description: "Vibrant weekly market"
-  },
-  {
-    name: "Basilica of Bom Jesus",
-    image: "https://images.unsplash.com/photo-1548013146-72479768bada?w=600",
-    description: "UNESCO World Heritage church"
-  },
-  {
-    name: "Palolem Beach",
-    image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600",
-    description: "Serene crescent bay"
+const track = document.getElementById("attTrack");
+const prevBtn = document.getElementById("attPrev");
+const nextBtn = document.getElementById("attNext");
+
+async function loadAttractions() {
+  try {
+    const res = await fetch('/api/attractions');
+    const data = await res.json();
+    console.log("✅ Data loaded:", data.length, "items");
+    renderCards(data);
+  } catch (err) {
+    console.error("❌ Fetch error:", err);
   }
-];
-
-(function initAttractionSlider(attractions) {
-  const track    = document.getElementById('attTrack');
-  const prevBtn  = document.getElementById('attPrev');
-  const nextBtn  = document.getElementById('attNext');
-
-  const VISIBLE  = 4;
-  const CARD_W   = 250;
-  const GAP      = 30;
-  const STEP     = CARD_W + GAP;
-
-  let current = 0;
-  const maxIdx = Math.max(0, attractions.length - VISIBLE);
-
-  /* ── Build cards ── */
-  function buildCards() {
-    track.innerHTML = '';
-    attractions.forEach(item => {
-      const card = document.createElement('div');
-      card.className = 'att-card';
-      card.innerHTML = `
-        <img class="att-card-img"
-             src="${item.image || item.img || ''}"
-             alt="${item.name}"
-             loading="lazy">
-        <div class="att-card-overlay"></div>
-        <div class="att-card-body">
-          <div class="att-card-name">${item.name}</div>
-          <button class="att-explore-btn"
-                  onclick="event.stopPropagation(); exploreAttraction('${item.name}')">
-            Explore
-            <span class="att-explore-btn-arrow">→</span>
-          </button>
-        </div>`;
-      track.appendChild(card);
-    });
-  }
-
-  /* ── Slide ── */
-  function goTo(idx) {
-    current = Math.max(0, Math.min(idx, maxIdx));
-    track.style.transform = `translateX(-${current * STEP}px)`;
-    prevBtn.disabled = current === 0;
-    nextBtn.disabled = current === maxIdx;
-  }
-
-  prevBtn.addEventListener('click', () => goTo(current - 1));
-  nextBtn.addEventListener('click', () => goTo(current + 1));
-
-  /* ── Touch / drag ── */
-  let startX = 0;
-  track.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
-  track.addEventListener('touchend', e => {
-    const diff = startX - e.changedTouches[0].clientX;
-    if (Math.abs(diff) > 50) goTo(diff > 0 ? current + 1 : current - 1);
-  }, { passive: true });
-
-  buildCards();
-  goTo(0);
-
-})(ATTRACTIONS);
-
-/* Called when Explore is clicked — wire this to your detail modal or page */
-function exploreAttraction(name) {
-  console.log('Explore:', name);
-  /* Example: open a modal, navigate to detail page, etc.
-     window.location.href = `/attraction/${name.toLowerCase().replace(/\s+/g,'-')}`;
-  */
 }
+
+function renderCards(data) {
+  track.innerHTML = "";
+  totalCards = data.length;
+
+  data.forEach(item => {
+    const card = document.createElement("div");
+    card.className = "att-card";
+    card.innerHTML = `
+      <img src="${item.image}" />
+      <div class="att-name">${item.name}</div>
+    `;
+    card.onclick = () => {
+      window.location.href = `/attraction/${item._id}`;
+    };
+    track.appendChild(card);
+  });
+
+  requestAnimationFrame(() => {
+    const cardEl = track.querySelector(".att-card");
+    console.log("✅ Card width:", cardEl?.getBoundingClientRect().width);
+    console.log("✅ Total cards:", totalCards);
+    updateSlider();
+    startAuto();
+  });
+}
+
+// ✅ ONE getCardWidth — with fallback
+function getCardWidth() {
+  const card = track.querySelector(".att-card");
+  if (!card) return 0;
+  const width = card.getBoundingClientRect().width;
+  if (width === 0) {
+    return (track.parentElement.getBoundingClientRect().width - (GAP * (VISIBLE - 1))) / VISIBLE + GAP;
+  }
+  return width + GAP;
+}
+
+function updateSlider() {
+  const offset = current * getCardWidth();
+  console.log(`🔄 Slide to index ${current}, offset ${offset}px`);
+  track.style.transform = `translateX(-${offset}px)`;
+}
+
+function startAuto() {
+  stopAuto();
+  console.log("▶️ Auto started, totalCards:", totalCards);
+  autoTimer1 = setInterval(() => {
+    current = current < totalCards - VISIBLE ? current + 1 : 0;
+    console.log("⏱ Auto tick → index", current);
+    updateSlider();
+  }, AUTO_DELAY);
+}
+
+autoTimer1 = setInterval(() => {
+  console.log("⏱ TICK - current:", current, "total:", totalCards); // ← add this
+  current = current < totalCards - VISIBLE ? current + 1 : 0;
+  updateSlider();
+}, AUTO_DELAY);
+
+
+
+
+function stopAuto() {
+  clearInterval(autoTimer1);
+}
+
+nextBtn.onclick = () => {
+  if (current < totalCards - VISIBLE) { current++; updateSlider(); startAuto(); }
+};
+prevBtn.onclick = () => {
+  if (current > 0) { current--; updateSlider(); startAuto(); }
+};
+
+window.addEventListener("resize", updateSlider);
+
+loadAttractions();
 </script>
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -830,147 +704,113 @@ function exploreAttraction(name) {
 </div>
 
 <script>
+
+
 let DB = [];
-
-/* ========= FETCH DATA FROM BACKEND ========= */
-async function loadData() {
-  try {
-    const res = await fetch("/api/cities");
-    DB = await res.json();
-
-    buildCards();
-    buildDots();
-    goTo(0);
-    startAuto();
-  } catch (err) {
-    console.error("Error loading data:", err);
-  }
-}
-
-/* ========= SLIDER ========= */
-const track = document.getElementById('track');
-const wrap = document.getElementById('trackWrap');
-const dotsEl = document.getElementById('dots');
-
 let currentIdx = 0;
 let autoTimer;
 
-const GAP = 30;
+const iTrack  = document.getElementById('track');
+const iWrap   = document.getElementById('trackWrap');
+const iDotsEl = document.getElementById('dots');
 
-/*  FIXED 4 CARDS */
-function visibleCount() {
-  return 4;
+function iCardWidth() {
+  return iWrap ? iWrap.offsetWidth / 4 : 280;
 }
 
-function cardWidth() {
-  return wrap.offsetWidth / 4;
+function iMaxIndex() {
+  return Math.max(0, DB.length - 4);
 }
 
-function maxIndex() {
-  return Math.max(0, DB.length - visibleCount());
-}
-
-/* ========= BUILD CARDS ========= */
+/* ── BUILD ITINERARY CARDS ── */
 function buildCards() {
-  track.innerHTML = '';
+  if (!iTrack) return;
+  iTrack.innerHTML = '';
 
   DB.forEach(item => {
-    const stars = '★'.repeat(Math.floor(item.rating));
-
+    const stars = '★'.repeat(Math.floor(item.rating || 0));
     const el = document.createElement('div');
     el.className = 'iti-card';
-
     el.innerHTML = `
       <div class="card-img-wrap">
-        <img class="card-img" src="${item.img}">
+        <img class="card-img"
+             src="${item.img || ''}"
+             alt="${item.title || ''}"
+             onerror="this.src='https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400'">
         <div class="card-img-overlay"></div>
-        <span class="card-badge">${item.category}</span>
-        <span class="card-days">${item.days} days</span>
+        <span class="card-badge">${item.category || ''}</span>
+        <span class="card-days">${item.days || ''} days</span>
       </div>
-
       <div class="card-body">
-        <h3 class="card-title">${item.title}</h3>
-        <p class="card-desc">${item.desc}</p>
-
+        <h3 class="card-title">${item.title || ''}</h3>
+        <p class="card-desc">${item.desc || ''}</p>
         <div class="card-meta">
-          <div class="card-price">${item.price}</div>
-          
+          <div class="card-price">${item.price || ''}</div>
+          <div class="card-rating">${stars} ${item.rating || ''}</div>
         </div>
-      </div>
-    `;
+      </div>`;
 
-   
     el.addEventListener('click', () => {
       window.location.href = `/itinerary/${item.slug}`;
     });
 
-    track.appendChild(el);
+    iTrack.appendChild(el);
   });
 }
 
-/* ========= DOTS ========= */
+/* ── BUILD DOTS ── */
 function buildDots() {
-  dotsEl.innerHTML = '';
+  if (!iDotsEl) return;
+  iDotsEl.innerHTML = '';
 
-  for (let i = 0; i <= maxIndex(); i++) {
+  for (let i = 0; i <= iMaxIndex(); i++) {
     const dot = document.createElement('div');
     dot.className = 'dot';
-
     dot.addEventListener('click', () => goTo(i));
-
-    dotsEl.appendChild(dot);
+    iDotsEl.appendChild(dot);
   }
 }
 
 function updateDots() {
-  document.querySelectorAll('.dot').forEach((d, i) => {
+  document.querySelectorAll('#dots .dot').forEach((d, i) => {
     d.classList.toggle('active', i === currentIdx);
   });
 }
 
-/* ========= NAVIGATION ========= */
+/* ── NAVIGATION ── */
 function goTo(idx) {
-  currentIdx = Math.max(0, Math.min(idx, maxIndex()));
-  track.style.transform = `translateX(-${currentIdx * cardWidth()}px)`;
+  currentIdx = Math.max(0, Math.min(idx, iMaxIndex()));
+  if (iTrack) iTrack.style.transform = `translateX(-${currentIdx * iCardWidth()}px)`;
   updateDots();
 }
 
-function next() {
-  goTo(currentIdx >= maxIndex() ? 0 : currentIdx + 1);
-}
+function next() { goTo(currentIdx >= iMaxIndex() ? 0 : currentIdx + 1); }
+function prev() { goTo(currentIdx <= 0 ? iMaxIndex() : currentIdx - 1); }
 
-function prev() {
-  goTo(currentIdx <= 0 ? maxIndex() : currentIdx - 1);
-}
+document.getElementById('nextBtn').onclick = () => next();
+document.getElementById('prevBtn').onclick = () => prev();
 
-document.getElementById('nextBtn').onclick = () => {
-  next();
-};
-
-document.getElementById('prevBtn').onclick = () => {
-  prev();
-};
-
-/* ========= AUTO SLIDE ========= */
 function startAuto() {
+  clearInterval(autoTimer);
   autoTimer = setInterval(next, 3000);
 }
 
+/* ── LOAD ITINERARIES FROM API ── */
 async function loadData() {
   try {
-    const res = await fetch("/api/itineraries");  
+    const res = await fetch('/api/itineraries');
     DB = await res.json();
-
     buildCards();
     buildDots();
     goTo(0);
     startAuto();
   } catch (err) {
-    console.error("Error loading data:", err);
+    console.error('Itinerary load error:', err);
   }
 }
 
-/* ========= INIT ========= */
+window.addEventListener('resize', () => goTo(currentIdx));
+
 loadData();
 </script>
 
@@ -1336,6 +1176,7 @@ function closeMobile() {
 
 /* ── Destinations ─ */
 function renderDestinations(data) {
+   if (typeof DESTINATIONS1 === 'undefined') return;
    const grid = document.getElementById('main-dest-grid');
   const dests = data || DESTINATIONS1;
   grid.innerHTML = dests.map(d => destCardHTML(d)).join('');
@@ -1721,15 +1562,110 @@ function showPlaceDetails(place) {
   initPlaceMap(place.lat, place.lng, place.name);
 }
 
+
+function showPlaceDetails(place) {
+  const modal = document.getElementById('place-modal');
+  const body  = document.getElementById('place-modal-body');
+
+  const images = place.images && place.images.length
+    ? place.images
+    : [place.mainImage];
+
+  body.innerHTML = `
+
+    <!-- IMAGE GALLERY -->
+    <div class="gallery-container">
+      <button class="gallery-btn prev" onclick="changeSlide(-1)">❮</button>
+      <div class="gallery-wrapper">
+        ${images.map((img, i) => `
+          <img src="${img}" class="gallery-slide ${i === 0 ? 'active' : ''}">
+        `).join('')}
+      </div>
+      <button class="gallery-btn next" onclick="changeSlide(1)">❯</button>
+    </div>
+
+    <!-- BASIC INFO -->
+    <div class="place-info">
+      <h1>${place.name}</h1>
+      <p class="meta">⭐ ${place.rating || 'N/A'} • ₹${place.avgCostPerDay}/day</p>
+      <p class="desc">${place.description || 'No description available'}</p>
+    </div>
+
+    <!-- IMPORTANT INFO -->
+    <div class="info-section">
+      <h2>Important Information</h2>
+      <ul>
+        ${(place.highlights || []).map(h => `<li>✔ ${h}</li>`).join('')}
+      </ul>
+    </div>
+
+    <!-- ✅ ATTRACTION SLIDER INSIDE MODAL -->
+    <div class="modal-att-section">
+      <div class="modal-att-header">
+        <div class="modal-att-kicker">Must Visit</div>
+        <h2 class="modal-att-title">Top Attractions</h2>
+      </div>
+
+      <div class="modal-att-wrap">
+        <div class="modal-att-track" id="modalAttTrack"></div>
+      </div>
+
+      <div class="modal-att-footer">
+        <div class="modal-att-dots" id="modalAttDots"></div>
+        <div class="modal-att-nav">
+          <button class="modal-att-btn" id="modalAttPrev">&#8592;</button>
+          <button class="modal-att-btn" id="modalAttNext">&#8594;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAP -->
+    <div class="map-section">
+      <h2>Location</h2>
+      <div id="place-map"></div>
+    </div>
+  `;
+
+  modal.style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  initPlaceMap(place.lat, place.lng, place.name);
+}
+
+// async function fetchPlace(slug) {
+//   try {
+//     const res = await fetch(`/api/place/${slug}`);
+//     const data = await res.json();
+//     showPlaceDetails(data);
+//   } catch (err) {
+//     showToast("Failed to load place details", "error");
+//   }
+// }
+/* ════════════════════════════════════════════════════════
+   UPDATED fetchPlace
+   Calls BOTH sliders separately — one for modal, one for main page
+════════════════════════════════════════════════════════ */
 async function fetchPlace(slug) {
   try {
-    const res = await fetch(`/api/place/${slug}`);
-    const data = await res.json();
-    showPlaceDetails(data);
+    /* 1 — fetch city data → open place modal */
+    const cityRes = await fetch(`/api/place/${slug}`);
+    const city    = await cityRes.json();
+    showPlaceDetails(city);
+
+    /* 2 — fetch attractions ONCE, use for both sliders */
+    const attRes      = await fetch(`/api/attractions/${slug}`);
+    const attractions = await attRes.json();
+
+    /* 3 — modal slider: small delay so modal DOM is rendered */
+    setTimeout(() => initModalAttractionSlider(attractions), 150);
+
+    /* 4 — main page slider: above itinerary section */
+    initAttractionSlider(attractions, city.name);
+
   } catch (err) {
-    showToast("Failed to load place details", "error");
+    showToast('Failed to load details', 'error');
   }
 }
+
 
 function closePlaceModal() {
   document.getElementById('place-modal').style.display = 'none';
@@ -1740,6 +1676,7 @@ function closePlaceModalOuter(e) {
 }
 
 function showAICards(bud) {
+  if (typeof AI_RECS === 'undefined') return;
   const cardsDiv = document.getElementById('ai-cards');
   const recs = AI_RECS[bud] || AI_RECS.medium;
   cardsDiv.querySelectorAll('.ai-card').forEach(c => c.remove());
